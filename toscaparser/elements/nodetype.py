@@ -155,9 +155,11 @@ class NodeType(StatefulEntityType):
         if parent_node:
             while parent_node.type != 'tosca.nodes.Root':
                 req = parent_node.get_value(self.REQUIREMENTS, None, True)
-                for r in req:
-                    if r not in requires:
-                        requires.append(r)
+                # This req can be None, add this if
+                if req:
+                    for r in req:
+                        if r not in requires:
+                            requires.append(r)
                 parent_node = parent_node.parent_type
         return requires
 
