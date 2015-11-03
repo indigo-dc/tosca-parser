@@ -84,7 +84,8 @@ class EntityType(object):
         if ndtype in defs:
             value = defs[ndtype]
         if parent and not value:
-            p = self.parent_type
+            # Use the object definition first
+            p = self
             while value is None:
                 # check parent node
                 if not p:
