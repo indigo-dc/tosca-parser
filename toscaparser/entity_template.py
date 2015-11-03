@@ -127,7 +127,7 @@ class EntityTemplate(object):
         # Improve this function to get capabilities from parent definitions
         caps = self.type_definition.get_value(self.CAPABILITIES,
                                               self.entity_tpl,
-                                              self.type_definition)
+                                              True)
         if caps:
             for name, props in caps.items():
                 capabilities = self.type_definition.get_capabilities()
@@ -158,7 +158,8 @@ class EntityTemplate(object):
     def _validate_capabilities_properties(self, capabilities):
         for cap, props in capabilities.items():
             capabilitydef = self.get_capability(cap).definition
-            self._common_validate_properties(capabilitydef,
+            if self.PROPERTIES in props:
+                self._common_validate_properties(capabilitydef,
                                              props[self.PROPERTIES])
 
             # validating capability properties values
