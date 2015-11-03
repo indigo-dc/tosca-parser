@@ -30,7 +30,7 @@ class Capability(object):
             props_name = props_def.keys()
             
         for name in props_name:
-            value = None
+            value = props_def[name].value
             if name in self._properties:
                 value = self._properties[name]
             properties.append(Property(name, value, props_def[name].schema))
