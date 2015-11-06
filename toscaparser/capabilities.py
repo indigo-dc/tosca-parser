@@ -16,8 +16,9 @@ from toscaparser.properties import Property
 class Capability(object):
     '''TOSCA built-in capabilities type.'''
 
-    def __init__(self, name, properties, definition):
+    def __init__(self, name, properties, definition, custom_def=None):
         self.name = name
+        self.custom_def = custom_def
         self._properties = properties
         self.definition = definition
 
@@ -29,11 +30,11 @@ class Capability(object):
         if props_def:
             props_name = props_def.keys()
             
-        for name in props_name:
-            value = props_def[name].value
-            if name in self._properties:
-                value = self._properties[name]
-            properties.append(Property(name, value, props_def[name].schema))
+            for name in props_name:
+                value = props_def[name].value
+                if name in self._properties:
+                    value = self._properties[name]
+                properties.append(Property(name, value, props_def[name].schema, self.custom_def))
         return properties
 
     def get_properties(self):
