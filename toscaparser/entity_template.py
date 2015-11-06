@@ -134,9 +134,9 @@ class EntityTemplate(object):
                 if name in capabilities.keys():
                     c = capabilities[name]
                     if 'properties' in props:
-                        cap = Capability(name, props['properties'], c)
+                        cap = Capability(name, props['properties'], c, self.custom_def)
                     else:
-                        cap = Capability(name, [], c)
+                        cap = Capability(name, [], c, self.custom_def)
                     capability.append(cap)
         return capability
 
