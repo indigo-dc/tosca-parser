@@ -36,7 +36,7 @@ SECTIONS = (DEFINITION_VERSION, DEFAULT_NAMESPACE, TEMPLATE_NAME,
             'template_name', 'topology_template', 'template_author',
             'template_version', 'description', 'imports', 'dsl_definitions',
             'node_types', 'relationship_types', 'relationship_templates',
-            'capability_types', 'artifact_types', 'datatype_definitions')
+            'capability_types', 'artifact_types', 'data_types')
 # Special key names
 SPECIAL_SECTIONS = (METADATA) = ('metadata')
 
