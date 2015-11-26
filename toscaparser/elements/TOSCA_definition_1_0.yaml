@@ -636,17 +636,13 @@ tosca.datatypes.network.PortSpec:
       constraints:
         - valid_values: [ udp, tcp, igmp ]
     target:
-      type: list
-      entry_schema:
-        type: PortDef
+      type: PortDef
     target_range:
       type: range
       constraints:
         - in_range: [ 1, 65535 ]
     source:
-      type: list
-      entry_schema:
-        type: PortDef
+      type: PortDef
     source_range:
       type: range
       constraints:

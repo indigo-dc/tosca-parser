@@ -49,7 +49,7 @@ class CapabilityTypeDef(StatefulEntityType):
         if parent_properties:
             for _, props in parent_properties.items():
                 for prop, schema in props.items():
-                    if prop not in self.properties:
+                    if not self.properties or prop not in self.properties:
                         properties.append(PropertyDef(prop, None, schema))
         return properties
 
