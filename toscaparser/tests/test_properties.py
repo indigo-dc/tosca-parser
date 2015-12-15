@@ -11,8 +11,10 @@
 #    under the License.
 
 from toscaparser.common import exception
+from toscaparser.elements.property_definition import PropertyDef
 from toscaparser.properties import Property
 from toscaparser.tests.base import TestCase
+from toscaparser.utils.gettextutils import _
 from toscaparser.utils import yamlparser
 
 
@@ -30,7 +32,7 @@ class PropertyTest(TestCase):
                                     test_property_schema)
         error = self.assertRaises(exception.InvalidTypeError,
                                   propertyInstance.validate)
-        self.assertEqual('Type "Fish" is not a valid type.', str(error))
+        self.assertEqual(_('Type "Fish" is not a valid type.'), str(error))
 
     def test_list(self):
         test_property_schema = {'type': 'list'}
@@ -44,7 +46,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', 'a',
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"a" is not a list.', str(error))
+        self.assertEqual(_('"a" is not a list.'), str(error))
 
     def test_list_entry_schema(self):
         test_property_schema = {'type': 'list',
@@ -73,7 +75,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', [1, 'b'],
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"b" is not an integer.', str(error))
+        self.assertEqual(_('"b" is not an integer.'), str(error))
 
     def test_map(self):
         test_property_schema = {'type': 'map'}
@@ -87,7 +89,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', 12,
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"12" is not a map.', str(error))
+        self.assertEqual(_('"12" is not a map.'), str(error))
 
     def test_map_entry_schema(self):
         test_property_schema = {'type': 'map',
@@ -106,7 +108,7 @@ class PropertyTest(TestCase):
                                     {'valid': True, 'contact_name': 123},
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"123" is not a boolean.', str(error))
+        self.assertEqual(_('"123" is not a boolean.'), str(error))
 
     def test_boolean(self):
         test_property_schema = {'type': 'boolean'}
@@ -123,7 +125,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', 12,
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"12" is not a boolean.', str(error))
+        self.assertEqual(_('"12" is not a boolean.'), str(error))
 
     def test_float(self):
         test_property_schema = {'type': 'float'}
@@ -137,7 +139,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', 12,
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('"12" is not a float.', str(error))
+        self.assertEqual(_('"12" is not a float.'), str(error))
 
     def test_timestamp(self):
         test_property_schema = {'type': 'timestamp'}
@@ -180,7 +182,7 @@ class PropertyTest(TestCase):
         propertyInstance = Property('test_property', '2015-04-115T02:59:43.1Z',
                                     test_property_schema)
         error = self.assertRaises(ValueError, propertyInstance.validate)
-        self.assertEqual('day is out of range for month', str(error))
+        self.assertEqual(_('day is out of range for month'), str(error))
 
     def test_required(self):
         test_property_schema = {'type': 'string'}
@@ -220,3 +222,15 @@ class PropertyTest(TestCase):
         self.assertIsNone(tpl.validate())
         self.assertEqual(expected_properties,
                          sorted(tpl.get_properties().keys()))
+
+    def test_missing_property_type(self):
+        tpl_snippet = '''
+         properties:
+           prop:
+             typo: tosca.mytesttype.Test
+        '''
+        schema = yamlparser.simple_parse(tpl_snippet)
+        error = self.assertRaises(exception.InvalidSchemaError, PropertyDef,
+                                  'prop', None, schema['properties']['prop'])
+        self.assertEqual(_('Schema definition of "prop" must have a "type" '
+                           'attribute.'), str(error))

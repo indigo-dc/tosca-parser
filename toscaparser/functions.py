@@ -15,6 +15,7 @@
 import abc
 import six
 
+from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownInputError
 from toscaparser.dataentity import DataEntity
 from toscaparser.elements.entity_type import EntityType
@@ -74,12 +75,14 @@ class GetInput(Function):
 
     def validate(self):
         if len(self.args) != 1:
-            raise ValueError(_(
-                'Expected one argument for get_input function but received: '
-                '{0}.').format(self.args))
+            ExceptionCollector.appendException(
+                ValueError(_(
+                    'Expected one argument for function "get_input" but '
+                    'received "%s".') % self.args))
         inputs = [input.name for input in self.tosca_tpl.inputs]
         if self.args[0] not in inputs:
-            raise UnknownInputError(input_name=self.args[0])
+            ExceptionCollector.appendException(
+                UnknownInputError(input_name=self.args[0]))
 
     def result(self):
         if self.tosca_tpl.parsed_params and \
@@ -121,9 +124,10 @@ class GetAttribute(Function):
 
     def validate(self):
         if len(self.args) != 2:
-            raise ValueError(_(
-                'Illegal arguments for {0} function. Expected arguments: '
-                'node-template-name, attribute-name').format(GET_ATTRIBUTE))
+            ExceptionCollector.appendException(
+                ValueError(_('Illegal arguments for function "{0}". Expected '
+                             'arguments: "node-template-name", '
+                             '"attribute-name"').format(GET_ATTRIBUTE)))
         self._find_node_template_containing_attribute()
 
     def result(self):
@@ -143,22 +147,28 @@ class GetAttribute(Function):
             # Currently this is the only way to tell whether the function
             # is used within the outputs section of the TOSCA template.
             if isinstance(self.context, list):
-                raise ValueError(_(
-                    "get_attribute HOST keyword is not allowed within the "
-                    "outputs section of the TOSCA template"))
+                ExceptionCollector.appendException(
+                    ValueError(_(
+                        '"get_attribute: [ HOST, ... ]" is not allowed in '
+                        '"outputs" section of the TOSCA template.')))
+                return
             node_tpl = self._find_host_containing_attribute()
             if not node_tpl:
-                raise ValueError(_(
-                    "get_attribute HOST keyword is used in '{0}' node "
-                    "template but {1} was not found "
-                    "in relationship chain").format(self.context.name,
-                                                    HOSTED_ON))
+                ExceptionCollector.appendException(
+                    ValueError(_(
+                        '"get_attribute: [ HOST, ... ]" was used in node '
+                        'template "{0}" but "{1}" was not found in '
+                        'the relationship chain.').format(self.context.name,
+                                                          HOSTED_ON)))
         else:
             node_tpl = self._find_node_template(self.args[0])
-        if not self._attribute_exists_in_type(node_tpl.type_definition):
-            raise KeyError(_(
-                "Attribute '{0}' not found in node template: {1}.").format(
-                    self.attribute_name, node_tpl.name))
+        if node_tpl and \
+            not self._attribute_exists_in_type(node_tpl.type_definition):
+            ExceptionCollector.appendException(
+                KeyError(_('Attribute "%(att)s" was not found in node '
+                           'template "%(ntpl)s".') %
+                         {'att': self.attribute_name,
+                          'ntpl': node_tpl.name}))
         return node_tpl
 
     def _attribute_exists_in_type(self, type_definition):
@@ -169,27 +179,32 @@ class GetAttribute(Function):
 
     def _find_host_containing_attribute(self, node_template_name=SELF):
         node_template = self._find_node_template(node_template_name)
-        hosted_on_rel = EntityType.TOSCA_DEF[HOSTED_ON]
-        for r in node_template.requirements:
-            for _, target_name in r.items():
-                target_node = self._find_node_template(target_name)
-                target_type = target_node.type_definition
-                for capability in target_type.get_capabilities_objects():
-                    if capability.type in hosted_on_rel['valid_target_types']:
-                        if self._attribute_exists_in_type(target_type):
-                            return target_node
-                        return self._find_host_containing_attribute(
-                            target_name)
+        if node_template:
+            hosted_on_rel = EntityType.TOSCA_DEF[HOSTED_ON]
+            for r in node_template.requirements:
+                for _, target_name in r.items():
+                    target_node = self._find_node_template(target_name)
+                    target_type = target_node.type_definition
+                    for capability in target_type.get_capabilities_objects():
+                        if capability.type in hosted_on_rel['valid_target_types']:
+                            if self._attribute_exists_in_type(target_type):
+                                return target_node
+                            return self._find_host_containing_attribute(
+                                target_name)
         return None
 
     def _find_node_template(self, node_template_name):
-        name = self.context.name if node_template_name == SELF else \
-            node_template_name
+        name = self.context.name \
+            if node_template_name == SELF and \
+            not isinstance(self.context, list) \
+            else node_template_name
         for node_template in self.tosca_tpl.nodetemplates:
             if node_template.name == name:
                 return node_template
-        raise KeyError(_(
-            'No such node template: {0}.').format(node_template_name))
+        ExceptionCollector.appendException(
+            KeyError(_(
+                'Node template "{0}" was not found.'
+                ).format(node_template_name)))
 
     @property
     def node_template_name(self):
@@ -230,11 +245,16 @@ class GetProperty(Function):
     def validate(self):
         # enable to get nested_attribute_name_or_index
         if len(self.args) < 2:
-            raise ValueError(_(
-                'Expected arguments: [node-template-name, req-or-cap '
-                '(optional), property name.'))
+            ExceptionCollector.appendException(
+                ValueError(_(
+                    'Expected arguments: "node-template-name", "req-or-cap" '
+                    '(optional), "property name".')))
+            return
         if len(self.args) == 2:
-            prop = self._find_property(self.args[1]).value
+            found_prop = self._find_property(self.args[1])
+            if not found_prop:
+                return
+            prop = found_prop.value
             if not isinstance(prop, Function):
                 get_function(self.tosca_tpl, self.context, prop)
         elif len(self.args) >= 3:
@@ -248,8 +268,9 @@ class GetProperty(Function):
                              self._find_req_or_cap_property(self.args[1],
                                                         self.args[2]))
         else:
-            raise NotImplementedError(_(
-                'Nested properties are not supported.'))
+            ExceptionCollector.appendException(
+                NotImplementedError(_(
+                    'Nested properties are not supported.')))
 
     def _find_req_or_cap_property(self, req_or_cap, property_name):
         node_tpl = self._find_node_template(self.args[0])
@@ -281,33 +302,42 @@ class GetProperty(Function):
             if props and property_name in props.keys():
                 property = props[property_name]
             if not property:
-                raise KeyError(_(
-                    "Property '{0}' not found in capability '{1}' of node"
-                    " template '{2}' referenced from node template"
-                    " '{3}'.").format(property_name,
-                                      capability_name,
-                                      node_template.name,
-                                      self.context.name))
+                ExceptionCollector.appendException(
+                    KeyError(_('Property "%(prop)s" was not found in '
+                               'capability "%(cap)s" of node template '
+                               '"%(ntpl1)s" referenced from node template '
+                               '"%(ntpl2)s".') % {'prop': property_name,
+                                                  'cap': capability_name,
+                                                  'ntpl1': node_template.name,
+                                                  'ntpl2': self.context.name}))
+                return None
+
             # if the value is None, return the default one
             if property.value:
                 return property.value
             else:
                 return property.default
-        msg = _("Requirement/Capability '{0}' referenced from '{1}' node "
-                "template not found in '{2}' node template.").format(
+
+        msg = _('Requirement/Capability "{0}" referenced from node template '
+                '"{1}" was not found in node template "{2}".').format(
                     capability_name,
                     self.context.name,
                     node_template.name)
-        raise KeyError(msg)
+        ExceptionCollector.appendException(KeyError(msg))
 
     def _find_property(self, property_name):
         node_tpl = self._find_node_template(self.args[0])
+        if not node_tpl:
+            return
         props = node_tpl.get_properties()
         found = [props[property_name]] if property_name in props else []
         if len(found) == 0:
-            raise KeyError(_(
-                "Property: '{0}' not found in node template: {1}.").format(
-                    property_name, node_tpl.name))
+            ExceptionCollector.appendException(
+                KeyError(_('Property "%(prop)s" was not found in node '
+                           'template "%(ntpl)s".') %
+                         {'prop': property_name,
+                          'ntpl': node_tpl.name}))
+            return None
         return found[0]
 
     def _find_node_template(self, node_template_name):
@@ -316,11 +346,15 @@ class GetProperty(Function):
         # enable the HOST value in the function 
         elif node_template_name == HOST:
             return self._find_host_containing_property()
+        if not hasattr(self.tosca_tpl, 'nodetemplates'):
+            return
         for node_template in self.tosca_tpl.nodetemplates:
             if node_template.name == node_template_name:
                 return node_template
-        raise KeyError(_(
-            'No such node template: {0}.').format(node_template_name))
+        ExceptionCollector.appendException(
+            KeyError(_(
+                'Node template "{0}" was not found.'
+                ).format(node_template_name)))
 
     # Add this functions similar to get_attribute case
     def _find_host_containing_property(self, node_template_name=SELF):

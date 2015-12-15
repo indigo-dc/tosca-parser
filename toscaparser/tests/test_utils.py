@@ -12,6 +12,7 @@
 
 from toscaparser.common.exception import URLException
 from toscaparser.tests.base import TestCase
+from toscaparser.utils.gettextutils import _
 import toscaparser.utils.urlutils
 import toscaparser.utils.yamlparser
 
@@ -48,9 +49,10 @@ class UrlUtilsTest(TestCase):
             "http://github.com/proj1/scripts/b.js")
 
     def test_load_url_errors(self):
-        err_msg = ('URLException "Failed to reach server http://www.nourl.org.'
-                   ' Reason is : [Errno -2] Name or service not known".')
-        url = "http://www.nourl.org"
+        url = "http://www.badurl."
+        err_msg = (_('Failed to reach server "%(url)s". Reason is: '
+                   '[Errno -2] Name or service not known.')
+                   % {'url': url})
         err = self.assertRaises(URLException,
                                 YAML_LOADER,
                                 url,

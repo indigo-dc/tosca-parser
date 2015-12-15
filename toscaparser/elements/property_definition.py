@@ -10,8 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import InvalidSchemaError
-# add import for the _ function
 from toscaparser.utils.gettextutils import _
 
 class PropertyDef(object):
@@ -25,9 +25,10 @@ class PropertyDef(object):
         try:
             self.schema['type']
         except KeyError:
-            msg = (_("Property definition of %(pname)s must have type.") %
-                   dict(pname=self.name))
-            raise InvalidSchemaError(message=msg)
+            msg = (_('Schema definition of "%(pname)s" must have a "type" '
+                     'attribute.') % dict(pname=self.name))
+            ExceptionCollector.appendException(
+                InvalidSchemaError(message=msg))
 
     @property
     def required(self):

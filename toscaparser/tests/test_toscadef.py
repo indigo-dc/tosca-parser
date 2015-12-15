@@ -12,6 +12,7 @@
 
 from toscaparser.common import exception
 from toscaparser.elements.artifacttype import ArtifactTypeDef
+from toscaparser.elements.entity_type import EntityType
 import toscaparser.elements.interfaces as ifaces
 from toscaparser.elements.nodetype import NodeType
 from toscaparser.elements.policytype import PolicyType
@@ -105,6 +106,14 @@ class ToscaDefTest(TestCase):
             [('cpu_frequency', False), ('disk_size', False),
              ('mem_size', False), ('num_cpus', False)],
             sorted([(p.name, p.required) for p in host_props]))
+        endpoint_admin_properties = 'secure'
+        endpoint_admin_props_def_objects = \
+            self._get_capability_properties_def_objects(
+                webserver_type.get_capabilities_objects(),
+                'tosca.capabilities.Endpoint.Admin')
+        self.assertIn(
+            endpoint_admin_properties,
+            sorted([p.name for p in endpoint_admin_props_def_objects]))
 
     def _get_capability_properties_def_objects(self, caps, type):
         properties_def = None
@@ -313,3 +322,14 @@ class ToscaDefTest(TestCase):
                          sorted([policy_performance_type.get_policy(name)
                                 for name in policy_performance_type.defs],
                                 key=lambda x: str(x)))
+
+    def test_port_spec(self):
+        tosca_def = EntityType.TOSCA_DEF
+        port_spec = tosca_def.get('tosca.datatypes.network.PortSpec')
+        self.assertEqual(port_spec.get('derived_from'),
+                         'tosca.datatypes.Root')
+        properties = port_spec.get('properties')
+        self.assertEqual(
+            sorted(['protocol', 'target', 'target_range', 'source',
+                    'source_range']),
+            sorted(properties.keys()))

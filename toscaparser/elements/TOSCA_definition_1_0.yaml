@@ -464,17 +464,41 @@ tosca.capabilities.Endpoint:
       constraints:
         - min_length: 1
       entry_schema:
-        type: tosca.datatypes.network.PortDef
+        type: tosca.datatypes.network.PortSpec
   attributes:
-    public_address:
-      type: string
-    private_address:
+    ip_address:
       type: string
 
 tosca.capabilities.Endpoint.Admin:
   derived_from: tosca.capabilities.Endpoint
   properties:
-    secure: true
+    secure: 
+      type: boolean
+      default: true
+      constraints:
+        - equal: true
+
+tosca.capabilities.Endpoint.Public:
+  derived_from: tosca.capabilities.Endpoint
+  properties:
+    # Change the default network_name to use the first public network found
+    network_name:
+      type: string
+      default: PUBLIC
+      constraints:
+        - equal: PUBLIC
+    floating:
+      description: >
+        Indicates that the public address should be allocated from a pool of
+        floating IPs that are associated with the network.
+      type: boolean
+      default: false
+      status: experimental
+    dns_name:
+      description: The optional name to register with DNS
+      type: string
+      required: false
+      status: experimental
 
 tosca.capabilities.Scalable:
   derived_from: tosca.capabilities.Root
@@ -596,7 +620,12 @@ tosca.interfaces.relationship.Configure:
  # A Datatype is a complex data type declaration which contains other
  # complex or simple data types.
 ##########################################################################
+tosca.datatypes.Root:
+  description: >
+    The TOSCA root Data Type all other TOSCA base Data Types derive from
+
 tosca.datatypes.network.NetworkInfo:
+  derived_from: tosca.datatypes.Root
   properties:
     network_name:
       type: string
@@ -608,6 +637,7 @@ tosca.datatypes.network.NetworkInfo:
         type: string
 
 tosca.datatypes.network.PortInfo:
+  derived_from: tosca.datatypes.Root
   properties:
     port_name:
       type: string
@@ -623,11 +653,13 @@ tosca.datatypes.network.PortInfo:
         type: string
 
 tosca.datatypes.network.PortDef:
+  derived_from: tosca.datatypes.Root
   type: integer
   constraints:
     - in_range: [ 1, 65535 ]
 
 tosca.datatypes.network.PortSpec:
+  derived_from: tosca.datatypes.Root
   properties:
     protocol:
       type: string
@@ -649,6 +681,7 @@ tosca.datatypes.network.PortSpec:
         - in_range: [ 1, 65535 ]
 
 tosca.datatypes.Credential:
+  derived_from: tosca.datatypes.Root
   properties:
     protocol:
       type: string

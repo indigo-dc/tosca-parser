@@ -410,13 +410,14 @@ class ToscaTemplateTest(TestCase):
                      'tosca-parser/master/toscaparser/tests/data/'
                      'tosca_single_instance_wordpress_with_local_abspath_'
                      'import.yaml')
-        err = self.assertRaises(ImportError, ToscaTemplate, tosca_tpl,
-                                None, False)
-        err_msg = (_("Absolute file name /toscaparser/tests/data/custom_types"
-                     "/wordpress.yaml cannot be used for a URL-based input "
-                     "%(tpl)s template.")
+        self.assertRaises(exception.ValidationError, ToscaTemplate, tosca_tpl,
+                          None, False)
+        err_msg = (_('Absolute file name "/tmp/tosca-parser/toscaparser/tests'
+                     '/data/custom_types/wordpress.yaml" cannot be used in a '
+                     'URL-based input template "%(tpl)s".')
                    % {'tpl': tosca_tpl})
-        self.assertEqual(err_msg, err.__str__())
+        exception.ExceptionCollector.assertExceptionMessage(ImportError,
+                                                            err_msg)
 
     def test_url_template_with_url_import(self):
         tosca_tpl = ('https://raw.githubusercontent.com/openstack/'
@@ -442,9 +443,104 @@ class ToscaTemplateTest(TestCase):
             "data/test_instance_nested_imports.yaml")
         tosca = ToscaTemplate(tosca_tpl)
         expected_custom_types = ['tosca.nodes.WebApplication.WordPress',
-                                 'tosca.nodes.SoftwareComponent.Rsyslog',
+                                 'test_namespace_prefix.Rsyslog',
+                                 'Test2ndRsyslogType',
+                                 'test_2nd_namespace_prefix.Rsyslog',
                                  'tosca.nodes.SoftwareComponent.Logstash',
                                  'tosca.nodes.SoftwareComponent.Rsyslog.'
                                  'TestRsyslogType']
         self.assertItemsEqual(tosca.topology_template.custom_defs.keys(),
                               expected_custom_types)
+
+    def test_invalid_template_file(self):
+        template_file = 'invalid template file'
+        expected_msg = (_('"%s" is not a valid file.') % template_file)
+        self.assertRaises(
+            exception.ValidationError,
+            ToscaTemplate, template_file, None, False)
+        exception.ExceptionCollector.assertExceptionMessage(ValueError,
+                                                            expected_msg)
+
+    def test_multiple_validation_errors(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_multiple_validation_errors.yaml")
+        self.assertRaises(exception.ValidationError, ToscaTemplate, tosca_tpl,
+                          None)
+        err1_msg = _('The template version "tosca_simple_yaml_1" is invalid. '
+                     'Valid versions are "tosca_simple_yaml_1_0".')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.InvalidTemplateVersion, err1_msg)
+
+        err2_msg = _('Import "custom_types/not_there.yaml" is not valid.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            ImportError, err2_msg)
+
+        err3_msg = _('Type "tosca.nodes.WebApplication.WordPress" is not a '
+                     'valid type.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.InvalidTypeError, err3_msg)
+
+        err4_msg = _('Node template "wordpress" contains unknown field '
+                     '"requirement". Refer to the definition to verify valid '
+                     'values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err4_msg)
+
+        err5_msg = _('\'Property "passwords" was not found in node template '
+                     '"mysql_database".\'')
+        exception.ExceptionCollector.assertExceptionMessage(
+            KeyError, err5_msg)
+
+        err6_msg = _('Template "mysql_dbms" is missing required field "type".')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.MissingRequiredFieldError, err6_msg)
+
+        err7_msg = _('Node template "mysql_dbms" contains unknown field '
+                     '"type1". Refer to the definition to verify valid '
+                     'values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err7_msg)
+
+        err8_msg = _('\'Node template "server1" was not found.\'')
+        exception.ExceptionCollector.assertExceptionMessage(
+            KeyError, err8_msg)
+
+        err9_msg = _('"relationship" used in template "webserver" is missing '
+                     'required field "type".')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.MissingRequiredFieldError, err9_msg)
+
+    def test_invalid_section_names(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_invalid_section_names.yaml")
+        self.assertRaises(exception.ValidationError, ToscaTemplate, tosca_tpl,
+                          None)
+        err1_msg = _('Template contains unknown field '
+                     '"tosca_definitions_versions". Refer to the definition '
+                     'to verify valid values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err1_msg)
+
+        err2_msg = _('Template contains unknown field "descriptions". '
+                     'Refer to the definition to verify valid values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err2_msg)
+
+        err3_msg = _('Template contains unknown field "import". Refer to '
+                     'the definition to verify valid values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err3_msg)
+
+        err4_msg = _('Template contains unknown field "topology_templates". '
+                     'Refer to the definition to verify valid values.')
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError, err4_msg)
+
+    def test_csar_with_alternate_extenstion(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/CSAR/csar_elk.csar")
+        tosca = ToscaTemplate(tosca_tpl)
+        self.assertTrue(tosca.topology_template.custom_defs)
