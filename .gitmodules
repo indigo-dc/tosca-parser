@@ -1,0 +1,3 @@
+[submodule "toscaparser/tests/data/indigo"]
+	path = toscaparser/tests/data/indigo
+	url = https://github.com/indigo-dc/tosca-types.git
