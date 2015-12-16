@@ -417,8 +417,6 @@ class GetProperty(Function):
                 " must be a dict.").format(self.args[2],
                               self.args[1],
                               self.context.name))
-=======
->>>>>>> upstream/master
 
     def result(self):
         if len(self.args) >= 3:
