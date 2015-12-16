@@ -18,8 +18,8 @@ import six
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownInputError
 from toscaparser.dataentity import DataEntity
-from toscaparser.elements.entity_type import EntityType
 from toscaparser.utils.gettextutils import _
+from toscaparser.elements.entity_type import EntityType
 
 
 GET_PROPERTY = 'get_property'
@@ -182,16 +182,16 @@ class GetAttribute(Function):
         if node_template:
             hosted_on_rel = EntityType.TOSCA_DEF[HOSTED_ON]
             for r in node_template.requirements:
-                for _, target_name in r.items():
+                for requirement, target_name in r.items():
                     target_node = self._find_node_template(target_name)
                     target_type = target_node.type_definition
                     for capability in target_type.get_capabilities_objects():
-                        if capability.type in hosted_on_rel['valid_target_types']:
+                        if capability.type in \
+                            hosted_on_rel['valid_target_types']:
                             if self._attribute_exists_in_type(target_type):
                                 return target_node
                             return self._find_host_containing_attribute(
                                 target_name)
-        return None
 
     def _find_node_template(self, node_template_name):
         name = self.context.name \
@@ -243,7 +243,6 @@ class GetProperty(Function):
     """
 
     def validate(self):
-        # enable to get nested_attribute_name_or_index
         if len(self.args) < 2:
             ExceptionCollector.appendException(
                 ValueError(_(
@@ -296,11 +295,10 @@ class GetProperty(Function):
         caps = node_template.get_capabilities()
         if caps and capability_name in caps.keys():
             cap = caps[capability_name]
-            # enable to get properties with null value
             property = None
             props = cap.get_properties()
             if props and property_name in props.keys():
-                property = props[property_name]
+                property = props[property_name].value
             if not property:
                 ExceptionCollector.appendException(
                     KeyError(_('Property "%(prop)s" was not found in '
@@ -310,14 +308,7 @@ class GetProperty(Function):
                                                   'cap': capability_name,
                                                   'ntpl1': node_template.name,
                                                   'ntpl2': self.context.name}))
-                return None
-
-            # if the value is None, return the default one
-            if property.value:
-                return property.value
-            else:
-                return property.default
-
+            return property
         msg = _('Requirement/Capability "{0}" referenced from node template '
                 '"{1}" was not found in node template "{2}".').format(
                     capability_name,
@@ -344,7 +335,7 @@ class GetProperty(Function):
         if node_template_name == SELF:
             return self.context
         # enable the HOST value in the function 
-        elif node_template_name == HOST:
+        if node_template_name == HOST:
             return self._find_host_containing_property()
         if not hasattr(self.tosca_tpl, 'nodetemplates'):
             return
@@ -371,7 +362,7 @@ class GetProperty(Function):
                         return self._find_host_containing_attribute(
                             target_name)
         return None
-       
+
     def _property_exists_in_type(self, type_definition):
         props_def = type_definition.get_properties_def()
         found = [props_def[self.args[1]]] \

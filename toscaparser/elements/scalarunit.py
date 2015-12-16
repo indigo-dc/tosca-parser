@@ -55,9 +55,6 @@ class ScalarUnit(object):
             ExceptionCollector.appendException(ValueError(msg))
 
     def validate_scalar_unit(self):
-        # Enable to have None values
-        if self.value is None:
-            return None
         regex = re.compile('([0-9.]+)\s*(\w+)')
         try:
             result = regex.match(str(self.value)).groups()
@@ -72,9 +69,6 @@ class ScalarUnit(object):
                            % self.value))
 
     def get_num_from_scalar_unit(self, unit=None):
-        # Enable to have None values
-        if self.value is None:
-            return None
         if unit:
             unit = self._check_unit_in_scalar_standard_units(unit)
         else:

@@ -63,17 +63,14 @@ class Property(object):
     def validate(self):
         '''Validate if not a reference property.'''
         if not is_function(self.value):
-            # avoid check None value properties
-            if self.value is not None:
-                if self.type == Schema.STRING:
-                    self.value = str(self.value)
-                self.value = DataEntity.validate_datatype(self.type, self.value,
-                                                          self.entry_schema,
-                                                          self.custom_def)
-                self._validate_constraints()
+            if self.type == Schema.STRING:
+                self.value = str(self.value)
+            self.value = DataEntity.validate_datatype(self.type, self.value,
+                                                      self.entry_schema,
+                                                      self.custom_def)
+            self._validate_constraints()
 
     def _validate_constraints(self):
-    	# avoid check None value properties
-        if self.value and self.constraints:
+        if self.constraints:
             for constraint in self.constraints:
                 constraint.validate(self.value)

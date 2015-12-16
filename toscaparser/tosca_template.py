@@ -25,8 +25,6 @@ from toscaparser.topology_template import TopologyTemplate
 from toscaparser.tpl_relationship_graph import ToscaGraph
 from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
-# Add import for the _ function
-from toscaparser.utils.gettextutils import _
 
 
 # TOSCA template key names
@@ -39,7 +37,7 @@ SECTIONS = (DEFINITION_VERSION, DEFAULT_NAMESPACE, TEMPLATE_NAME,
             'template_name', 'topology_template', 'template_author',
             'template_version', 'description', 'imports', 'dsl_definitions',
             'node_types', 'relationship_types', 'relationship_templates',
-            'capability_types', 'artifact_types', 'data_types')
+            'capability_types', 'artifact_types', 'datatype_definitions')
 # Special key names
 SPECIAL_SECTIONS = (METADATA) = ('metadata')
 

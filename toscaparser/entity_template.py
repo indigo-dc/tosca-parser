@@ -33,8 +33,7 @@ class EntityTemplate(object):
     # Add NODE_FILTER to the REQUIREMENTS_SECTION
     REQUIREMENTS_SECTION = (NODE, CAPABILITY, RELATIONSHIP, OCCURRENCES, NODE_FILTER) = \
                            ('node', 'capability', 'relationship',
-                            'occurrences','node_filter')
-
+                            'occurrences', 'node_filter')
     # Special key names
     SPECIAL_SECTIONS = (METADATA) = ('metadata')
 
@@ -127,19 +126,14 @@ class EntityTemplate(object):
 
     def _create_capabilities(self):
         capability = []
-        # Improve this function to get capabilities from parent definitions
         caps = self.type_definition.get_value(self.CAPABILITIES,
-                                              self.entity_tpl,
-                                              True)
+                                              self.entity_tpl)
         if caps:
             for name, props in caps.items():
                 capabilities = self.type_definition.get_capabilities()
                 if name in capabilities.keys():
                     c = capabilities[name]
-                    if 'properties' in props:
-                        cap = Capability(name, props['properties'], c, self.custom_def)
-                    else:
-                        cap = Capability(name, [], c, self.custom_def)
+                    cap = Capability(name, props['properties'], c)
                     capability.append(cap)
         return capability
 
@@ -161,8 +155,7 @@ class EntityTemplate(object):
     def _validate_capabilities_properties(self, capabilities):
         for cap, props in capabilities.items():
             capabilitydef = self.get_capability(cap).definition
-            if self.PROPERTIES in props:
-                self._common_validate_properties(capabilitydef,
+            self._common_validate_properties(capabilitydef,
                                              props[self.PROPERTIES])
 
             # validating capability properties values
@@ -260,14 +253,12 @@ class EntityTemplate(object):
         type_interfaces = None
         if isinstance(self.type_definition, RelationshipType):
             if isinstance(self.entity_tpl, dict):
-                for key, value in self.entity_tpl.items():
-                    # in some cases it can be the interface definition 
-                    if key == 'interfaces':
-                        type_interfaces = value
-                    elif key != 'type':
+                for rel_def, value in self.entity_tpl.items():
+                    if rel_def != 'type':
+                        rel_def = self.entity_tpl.get(rel_def)
                         rel = None
-                        if isinstance(value, dict):
-                            rel = value.get('relationship')
+                        if isinstance(rel_def, dict):
+                            rel = rel_def.get('relationship')
                         if rel:
                             if self.INTERFACES in rel:
                                 type_interfaces = rel[self.INTERFACES]
