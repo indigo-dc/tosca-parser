@@ -18,8 +18,8 @@ import six
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownInputError
 from toscaparser.dataentity import DataEntity
-from toscaparser.utils.gettextutils import _
 from toscaparser.elements.entity_type import EntityType
+from toscaparser.utils.gettextutils import _
 
 
 GET_PROPERTY = 'get_property'
@@ -261,11 +261,11 @@ class GetProperty(Function):
                 prop = self._find_property(self.args[1]).value
                 if not isinstance(prop, Function):
                     get_function(self.tosca_tpl, self.context, prop)
-            except:
+            except Exception:
                 get_function(self.tosca_tpl,
                              self.context,
                              self._find_req_or_cap_property(self.args[1],
-                                                        self.args[2]))
+                                                            self.args[2]))
         else:
             ExceptionCollector.appendException(
                 NotImplementedError(_(
@@ -334,7 +334,7 @@ class GetProperty(Function):
     def _find_node_template(self, node_template_name):
         if node_template_name == SELF:
             return self.context
-        # enable the HOST value in the function 
+        # enable the HOST value in the function
         if node_template_name == HOST:
             return self._find_host_containing_property()
         if not hasattr(self.tosca_tpl, 'nodetemplates'):
@@ -352,7 +352,7 @@ class GetProperty(Function):
         node_template = self._find_node_template(node_template_name)
         hosted_on_rel = EntityType.TOSCA_DEF[HOSTED_ON]
         for r in node_template.requirements:
-            for _, target_name in r.items():
+            for requirement, target_name in r.items():
                 target_node = self._find_node_template(target_name)
                 target_type = target_node.type_definition
                 for capability in target_type.get_capabilities_objects():
@@ -377,17 +377,18 @@ class GetProperty(Function):
                 raise KeyError(_(
                     "Property '{0}' found in capability '{1}'"
                     " referenced from node template {2}"
-                    " must have an element with index {3}.").format(self.args[2],
-                                  self.args[1],
-                                  self.context.name,
-                                  index))
+                    " must have an element with index {3}.").
+                    format(self.args[2],
+                           self.args[1],
+                           self.context.name,
+                           index))
         else:
             raise KeyError(_(
                 "Property '{0}' found in capability '{1}'"
                 " referenced from node template {2}"
                 " must be a list.").format(self.args[2],
-                              self.args[1],
-                              self.context.name))
+                                           self.args[1],
+                                           self.context.name))
 
     def _get_attribute_value(self, value, attibute):
         if isinstance(value, dict):
@@ -397,17 +398,18 @@ class GetProperty(Function):
                 raise KeyError(_(
                     "Property '{0}' found in capability '{1}'"
                     " referenced from node template {2}"
-                    " must have an attribute named {3}.").format(self.args[2],
-                                  self.args[1],
-                                  self.context.name,
-                                  attibute))
+                    " must have an attribute named {3}.").
+                    format(self.args[2],
+                           self.args[1],
+                           self.context.name,
+                           attibute))
         else:
             raise KeyError(_(
                 "Property '{0}' found in capability '{1}'"
                 " referenced from node template {2}"
                 " must be a dict.").format(self.args[2],
-                              self.args[1],
-                              self.context.name))
+                                           self.args[1],
+                                           self.context.name))
 
     def result(self):
         if len(self.args) >= 3:
@@ -415,18 +417,21 @@ class GetProperty(Function):
             index = 2
             try:
                 property_value = self._find_property(self.args[1]).value
-            except:
+            except Exception:
                 index = 3
-                # then check the req or caps 
+                # then check the req or caps
                 property_value = self._find_req_or_cap_property(self.args[1],
-                                                            self.args[2])
+                                                                self.args[2])
             if len(self.args) > index:
                 for elem in self.args[index:]:
                     try:
                         int_elem = int(elem)
-                        property_value = self._get_index_value(property_value, int_elem)
-                    except:
-                        property_value = self._get_attribute_value(property_value, elem)
+                        property_value = self._get_index_value(property_value,
+                                                               int_elem)
+                    except Exception:
+                        property_value = self._get_attribute_value(
+                            property_value,
+                            elem)
         else:
             property_value = self._find_property(self.args[1]).value
         if isinstance(property_value, Function):
