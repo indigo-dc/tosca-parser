@@ -374,42 +374,46 @@ class GetProperty(Function):
             if index < len(value):
                 return value[index]
             else:
-                raise KeyError(_(
+                ExceptionCollector.appendException(
+                    KeyError(_(
+                        "Property '{0}' found in capability '{1}'"
+                        " referenced from node template {2}"
+                        " must have an element with index {3}.").
+                        format(self.args[2],
+                               self.args[1],
+                               self.context.name,
+                               index)))
+        else:
+            ExceptionCollector.appendException(
+                KeyError(_(
                     "Property '{0}' found in capability '{1}'"
                     " referenced from node template {2}"
-                    " must have an element with index {3}.").
-                    format(self.args[2],
-                           self.args[1],
-                           self.context.name,
-                           index))
-        else:
-            raise KeyError(_(
-                "Property '{0}' found in capability '{1}'"
-                " referenced from node template {2}"
-                " must be a list.").format(self.args[2],
-                                           self.args[1],
-                                           self.context.name))
+                    " must be a list.").format(self.args[2],
+                                               self.args[1],
+                                               self.context.name)))
 
     def _get_attribute_value(self, value, attibute):
         if isinstance(value, dict):
             if attibute in value:
                 return value[attibute]
             else:
-                raise KeyError(_(
+                ExceptionCollector.appendException(
+                    KeyError(_(
+                        "Property '{0}' found in capability '{1}'"
+                        " referenced from node template {2}"
+                        " must have an attribute named {3}.").
+                        format(self.args[2],
+                               self.args[1],
+                               self.context.name,
+                               attibute)))
+        else:
+            ExceptionCollector.appendException(
+                KeyError(_(
                     "Property '{0}' found in capability '{1}'"
                     " referenced from node template {2}"
-                    " must have an attribute named {3}.").
-                    format(self.args[2],
-                           self.args[1],
-                           self.context.name,
-                           attibute))
-        else:
-            raise KeyError(_(
-                "Property '{0}' found in capability '{1}'"
-                " referenced from node template {2}"
-                " must be a dict.").format(self.args[2],
-                                           self.args[1],
-                                           self.context.name))
+                    " must be a dict.").format(self.args[2],
+                                               self.args[1],
+                                               self.context.name)))
 
     def result(self):
         if len(self.args) >= 3:
