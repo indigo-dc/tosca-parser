@@ -257,15 +257,17 @@ class GetProperty(Function):
             if not isinstance(prop, Function):
                 get_function(self.tosca_tpl, self.context, prop)
         elif len(self.args) >= 3:
-            try:
-                prop = self._find_property(self.args[1]).value
-                if not isinstance(prop, Function):
-                    get_function(self.tosca_tpl, self.context, prop)
-            except Exception:
+            node_tpl = self._find_node_template(self.args[0])
+            props = node_tpl.get_properties() if node_tpl else []
+            found = [props[self.args[1]]] if self.args[1] in props else []
+            if len(found) == 0:
                 get_function(self.tosca_tpl,
                              self.context,
                              self._find_req_or_cap_property(self.args[1],
                                                             self.args[2]))
+            else:
+                if not isinstance(found[0].value, Function):
+                    get_function(self.tosca_tpl, self.context, prop)
         else:
             ExceptionCollector.appendException(
                 NotImplementedError(_(
@@ -418,21 +420,24 @@ class GetProperty(Function):
     def result(self):
         if len(self.args) >= 3:
             # First check if there is property with this name
+            node_tpl = self._find_node_template(self.args[0])
+            props = node_tpl.get_properties() if node_tpl else []
             index = 2
-            try:
-                property_value = self._find_property(self.args[1]).value
-            except Exception:
+            found = [props[self.args[1]]] if self.args[1] in props else []
+            if found:
+                property_value = found[0].value
+            else:
                 index = 3
                 # then check the req or caps
                 property_value = self._find_req_or_cap_property(self.args[1],
                                                                 self.args[2])
             if len(self.args) > index:
                 for elem in self.args[index:]:
-                    try:
+                    if isinstance(property_value, list):
                         int_elem = int(elem)
                         property_value = self._get_index_value(property_value,
                                                                int_elem)
-                    except Exception:
+                    else:
                         property_value = self._get_attribute_value(
                             property_value,
                             elem)
