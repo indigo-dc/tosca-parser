@@ -71,6 +71,7 @@ topology_template:
               db_user: { get_property: [ SELF, user ] }
               db_password: { get_property: [ SELF, password ] }
               db_root_password: { get_property: [ mysql_dbms, root_password ] }
+              db_port: { get_property: [ HOST, port ] }
 
     mysql_dbms:
       type: tosca.nodes.DBMS

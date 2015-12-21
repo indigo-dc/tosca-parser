@@ -116,6 +116,14 @@ class IntrinsicFunctionsTest(TestCase):
                                                 'root_password')
         self.assertIsNone(dbms_root_password.result())
 
+    def test_get_property_with_host(self):
+        mysql_database = self._get_node('mysql_database')
+        operation = self._get_operation(mysql_database.interfaces, 'configure')
+        db_port = operation.inputs['db_port']
+        self.assertTrue(isinstance(db_port, functions.GetProperty))
+        result = db_port.result()
+        self.assertEqual(3306, result)
+
 
 class GetAttributeTest(TestCase):
 
