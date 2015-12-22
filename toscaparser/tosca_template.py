@@ -208,4 +208,3 @@ class ToscaTemplate(object):
             msg = (_('The input "%(path)s" successfully passed validation.') %
                    {'path': self.input_path})
             log.info(msg)
-            print(msg)
