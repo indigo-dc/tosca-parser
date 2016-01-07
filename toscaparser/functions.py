@@ -257,21 +257,30 @@ class GetProperty(Function):
             if not isinstance(prop, Function):
                 get_function(self.tosca_tpl, self.context, prop)
         elif len(self.args) >= 3:
+            # do not use _find_property to avoid raise KeyError
+            # if the prop is not found
+            # First check if there is property with this name)
             node_tpl = self._find_node_template(self.args[0])
             props = node_tpl.get_properties() if node_tpl else []
+            index = 2
             found = [props[self.args[1]]] if self.args[1] in props else []
-            if len(found) == 0:
-                get_function(self.tosca_tpl,
-                             self.context,
-                             self._find_req_or_cap_property(self.args[1],
-                                                            self.args[2]))
+            if found:
+                property_value = found[0].value
             else:
-                if not isinstance(found[0].value, Function):
-                    get_function(self.tosca_tpl, self.context, prop)
-        else:
-            ExceptionCollector.appendException(
-                NotImplementedError(_(
-                    'Nested properties are not supported.')))
+                index = 3
+                # then check the req or caps
+                property_value = self._find_req_or_cap_property(self.args[1],
+                                                                self.args[2])
+            if len(self.args) > index:
+                for elem in self.args[index:]:
+                    if isinstance(property_value, list):
+                        int_elem = int(elem)
+                        property_value = self._get_index_value(property_value,
+                                                               int_elem)
+                    else:
+                        property_value = self._get_attribute_value(
+                            property_value,
+                            elem)
 
     def _find_req_or_cap_property(self, req_or_cap, property_name):
         node_tpl = self._find_node_template(self.args[0])
