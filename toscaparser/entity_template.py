@@ -32,7 +32,6 @@ class EntityTemplate(object):
                ('derived_from', 'properties', 'requirements', 'interfaces',
                 'capabilities', 'type', 'description', 'directives',
                 'attributes', 'artifacts', 'node_filter', 'copy')
-    # Add NODE_FILTER to the REQUIREMENTS_SECTION
     REQUIREMENTS_SECTION = (NODE, CAPABILITY, RELATIONSHIP, OCCURRENCES, NODE_FILTER) = \
                            ('node', 'capability', 'relationship',
                             'occurrences', 'node_filter')
