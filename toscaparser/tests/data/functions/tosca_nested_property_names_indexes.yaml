@@ -22,7 +22,7 @@ topology_template:
             inputs:
               wp_endpoint_protocol: { get_property: [ SELF, database_endpoint, ports, user_port, protocol ] }
               wp_list_prop: { get_property: [ mysql_database, list_prop, 2 ] }
-            
+
     mysql_database:
       type: tosca.nodes.DatabaseWithListParam
       properties:

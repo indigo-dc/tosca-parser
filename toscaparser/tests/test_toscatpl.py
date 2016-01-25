@@ -467,8 +467,9 @@ class ToscaTemplateTest(TestCase):
             "data/test_multiple_validation_errors.yaml")
         self.assertRaises(exception.ValidationError, ToscaTemplate, tosca_tpl,
                           None)
-        err1_msg = _('The template version "tosca_simple_yaml_1" is invalid. '
-                     'Valid versions are "tosca_simple_yaml_1_0".')
+        valid_versions = ', '.join(ToscaTemplate.VALID_TEMPLATE_VERSIONS)
+        err1_msg = (_('The template version "tosca_simple_yaml_1" is invalid. '
+                      'Valid versions are "%s".') % valid_versions)
         exception.ExceptionCollector.assertExceptionMessage(
             exception.InvalidTemplateVersion, err1_msg)
 
@@ -556,3 +557,109 @@ class ToscaTemplateTest(TestCase):
                     target.relationships
                 except TypeError as error:
                     self.fail(error)
+
+    def test_no_input(self):
+        self.assertRaises(exception.ValidationError, ToscaTemplate, None,
+                          None, False, None)
+        err_msg = (('No path or yaml_dict_tpl was provided. '
+                    'There is nothing to parse.'))
+        exception.ExceptionCollector.assertExceptionMessage(ValueError,
+                                                            err_msg)
+
+    def test_path_and_yaml_dict_tpl_input(self):
+        test_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_helloworld.yaml")
+
+        yaml_dict_tpl = toscaparser.utils.yamlparser.load_yaml(test_tpl)
+
+        tosca = ToscaTemplate(test_tpl, yaml_dict_tpl=yaml_dict_tpl)
+
+        self.assertEqual(tosca.version, "tosca_simple_yaml_1_0")
+
+    def test_yaml_dict_tpl_input(self):
+        test_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_helloworld.yaml")
+
+        yaml_dict_tpl = toscaparser.utils.yamlparser.load_yaml(test_tpl)
+
+        tosca = ToscaTemplate(yaml_dict_tpl=yaml_dict_tpl)
+
+        self.assertEqual(tosca.version, "tosca_simple_yaml_1_0")
+
+    def test_yaml_dict_tpl_with_params_and_url_import(self):
+        test_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_single_instance_wordpress_with_url_import.yaml")
+
+        yaml_dict_tpl = toscaparser.utils.yamlparser.load_yaml(test_tpl)
+
+        params = {'db_name': 'my_wordpress', 'db_user': 'my_db_user',
+                  'db_root_pwd': 'mypasswd'}
+
+        tosca = ToscaTemplate(parsed_params=params,
+                              yaml_dict_tpl=yaml_dict_tpl)
+
+        self.assertEqual(tosca.version, "tosca_simple_yaml_1_0")
+
+    def test_yaml_dict_tpl_with_rel_import(self):
+        test_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_single_instance_wordpress.yaml")
+
+        yaml_dict_tpl = toscaparser.utils.yamlparser.load_yaml(test_tpl)
+
+        self.assertRaises(exception.ValidationError, ToscaTemplate, None,
+                          None, False, yaml_dict_tpl)
+        err_msg = (_('Relative file name "custom_types/wordpress.yaml" '
+                     'cannot be used in a pre-parsed input template.'))
+        exception.ExceptionCollector.assertExceptionMessage(ImportError,
+                                                            err_msg)
+
+    def test_policies_for_node_templates(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/policies/tosca_policy_template.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        for policy in tosca.topology_template.policies:
+            if policy.name == 'my_compute_placement_policy':
+                self.assertEqual('tosca.policies.Placement', policy.type)
+                self.assertEqual(['my_server_1', 'my_server_2'],
+                                 policy.targets)
+                self.assertEqual('node_templates', policy.get_targets_type())
+                for node in policy.targets_list:
+                    if node.name == 'my_server_1':
+                        '''Test property value'''
+                        props = node.get_properties()
+                        if props and 'mem_size' in props.keys():
+                            self.assertEqual(props['mem_size'].value,
+                                             '4096 MB')
+
+    def test_policies_for_groups(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/policies/tosca_policy_template.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        for policy in tosca.topology_template.policies:
+            if policy.name == 'my_groups_placement':
+                self.assertEqual('mycompany.mytypes.myScalingPolicy',
+                                 policy.type)
+                self.assertEqual(['webserver_group'], policy.targets)
+                self.assertEqual('groups', policy.get_targets_type())
+                group = policy.get_targets_list()[0]
+                for node in group.get_members():
+                    if node.name == 'my_server_2':
+                        '''Test property value'''
+                        props = node.get_properties()
+                        if props and 'mem_size' in props.keys():
+                            self.assertEqual(props['mem_size'].value,
+                                             '4096 MB')
+
+    def test_node_filter(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_node_filter.yaml")
+        ToscaTemplate(tosca_tpl)
