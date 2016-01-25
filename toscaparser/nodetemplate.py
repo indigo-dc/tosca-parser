@@ -102,7 +102,6 @@ class NodeTemplate(EntityTemplate):
             if relationship:
                 found_relationship_tpl = False
                 # apply available relationship templates if found
-                # check that they are not None
                 if self.available_rel_tpls:
                     for tpl in self.available_rel_tpls:
                         if tpl.name == relationship:
