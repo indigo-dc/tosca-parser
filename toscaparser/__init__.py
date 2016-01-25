@@ -12,8 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# import pbr.version
+import pbr.version
 
-__version__ = "0.3.0"
-# __version__ = pbr.version.VersionInfo(
-#    'tosca-parser').version_string()
+
+__version__ = pbr.version.VersionInfo(
+    'tosca-parser').version_string()
