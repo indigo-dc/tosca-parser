@@ -59,13 +59,15 @@ class ToscaDefTest(TestCase):
     def test_capabilities(self):
         self.assertEqual(
             sorted(['tosca.capabilities.Container',
+                    'tosca.capabilities.Node',
                     'tosca.capabilities.OperatingSystem',
                     'tosca.capabilities.network.Bindable',
                     'tosca.capabilities.Scalable']),
             sorted([c.type for c in compute_type.get_capabilities_objects()]))
         self.assertEqual(
-            ['tosca.capabilities.network.Linkable'],
-            [c.type for c in network_type.get_capabilities_objects()])
+            sorted(['tosca.capabilities.Node',
+                    'tosca.capabilities.network.Linkable']),
+            sorted([c.type for c in network_type.get_capabilities_objects()]))
         endpoint_properties = ['initiator', 'network_name', 'port',
                                'port_name', 'ports', 'protocol',
                                'secure', 'url_path']
@@ -146,21 +148,28 @@ class ToscaDefTest(TestCase):
 
     def test_attributes_def(self):
         self.assertEqual(
-            ['private_address', 'public_address'],
+            ['private_address', 'public_address', 'state', 'tosca_id',
+             'tosca_name'],
             sorted(compute_type.get_attributes_def().keys()))
 
     def test_requirements(self):
         self.assertEqual(
             [{'host': {'capability': 'tosca.capabilities.Container',
                        'node': 'tosca.nodes.Compute',
-                       'relationship': 'tosca.relationships.HostedOn'}}],
+                       'relationship': 'tosca.relationships.HostedOn'}},
+             {'dependency': {'capability': 'tosca.capabilities.Node',
+                             'node': 'tosca.nodes.Root',
+                             'occurrences': [0, 'UNBOUNDED'],
+                             'relationship': 'tosca.relationships.DependsOn'}}
+             ],
             [r for r in component_type.requirements])
 
     def test_relationship(self):
         self.assertEqual(
-            [('tosca.relationships.HostedOn', 'tosca.nodes.Compute')],
-            [(relation.type, node.type) for
-             relation, node in component_type.relationship.items()])
+            sorted([('tosca.relationships.HostedOn', 'tosca.nodes.Compute'),
+                    ('tosca.relationships.DependsOn', 'tosca.nodes.Root')]),
+            sorted([(relation.type, node.type) for
+                   relation, node in component_type.relationship.items()]))
         self.assertIn(
             ('tosca.relationships.HostedOn', ['tosca.capabilities.Container']),
             [(relation.type, relation.valid_target_types) for

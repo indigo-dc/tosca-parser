@@ -186,6 +186,7 @@ class ToscaTemplateTest(TestCase):
             compute_type = NodeType(tpl.type)
             self.assertEqual(
                 sorted(['tosca.capabilities.Container',
+                        'tosca.capabilities.Node',
                         'tosca.capabilities.OperatingSystem',
                         'tosca.capabilities.network.Bindable',
                         'tosca.capabilities.Scalable']),
@@ -662,4 +663,10 @@ class ToscaTemplateTest(TestCase):
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "data/test_node_filter.yaml")
+        ToscaTemplate(tosca_tpl)
+
+    def test_attributes_inheritance(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_attributes_inheritance.yaml")
         ToscaTemplate(tosca_tpl)
