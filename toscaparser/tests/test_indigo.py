@@ -80,5 +80,11 @@ class IndigoTest(TestCase):
     def test_elastic_cluster(self):
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/clues_tosca.yaml")
+            "data/indigo/examples/elastic_cluster.yaml")
+        IndigoToscaTemplate(tosca_tpl)
+
+    def test_cellar_webapp_mysql(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/indigo/examples/cellar_webapp_mysql.yaml")
         IndigoToscaTemplate(tosca_tpl)
