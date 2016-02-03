@@ -220,6 +220,22 @@ class ToscaTemplateTest(TestCase):
                             self.assertEqual(artifact,
                                              interface.implementation)
 
+    def test_relationship(self):
+        template = ToscaTemplate(self.tosca_elk_tpl)
+        for node_tpl in template.nodetemplates:
+            if node_tpl.name == 'paypal_pizzastore':
+                expected_relationships = ['tosca.relationships.ConnectsTo',
+                                          'tosca.relationships.HostedOn']
+                expected_hosts = ['tosca.nodes.Database',
+                                  'tosca.nodes.WebServer']
+                self.assertEqual(len(node_tpl.relationships), 2)
+                self.assertEqual(
+                    expected_relationships,
+                    sorted([k.type for k in node_tpl.relationships.keys()]))
+                self.assertEqual(
+                    expected_hosts,
+                    sorted([v.type for v in node_tpl.relationships.values()]))
+
     def test_template_macro(self):
         template = ToscaTemplate(self.tosca_elk_tpl)
         for node_tpl in template.nodetemplates:
@@ -618,6 +634,24 @@ class ToscaTemplateTest(TestCase):
         exception.ExceptionCollector.assertExceptionMessage(ImportError,
                                                             err_msg)
 
+    def test_yaml_dict_tpl_with_fullpath_import(self):
+        test_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_single_instance_wordpress.yaml")
+
+        yaml_dict_tpl = toscaparser.utils.yamlparser.load_yaml(test_tpl)
+
+        yaml_dict_tpl['imports'] = [os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), "data/custom_types/wordpress.yaml")]
+
+        params = {'db_name': 'my_wordpress', 'db_user': 'my_db_user',
+                  'db_root_pwd': 'mypasswd'}
+
+        tosca = ToscaTemplate(parsed_params=params,
+                              yaml_dict_tpl=yaml_dict_tpl)
+
+        self.assertEqual(tosca.version, "tosca_simple_yaml_1_0")
+
     def test_policies_for_node_templates(self):
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -651,7 +685,7 @@ class ToscaTemplateTest(TestCase):
                 self.assertEqual(['webserver_group'], policy.targets)
                 self.assertEqual('groups', policy.get_targets_type())
                 group = policy.get_targets_list()[0]
-                for node in group.get_members():
+                for node in group.get_member_nodes():
                     if node.name == 'my_server_2':
                         '''Test property value'''
                         props = node.get_properties()

@@ -13,6 +13,7 @@
 from toscaparser.common import exception
 from toscaparser.elements.artifacttype import ArtifactTypeDef
 from toscaparser.elements.entity_type import EntityType
+from toscaparser.elements.grouptype import GroupType
 import toscaparser.elements.interfaces as ifaces
 from toscaparser.elements.nodetype import NodeType
 from toscaparser.elements.policytype import PolicyType
@@ -40,6 +41,7 @@ policy_placement_type = PolicyType('tosca.policies.Placement')
 policy_scaling_type = PolicyType('tosca.policies.Scaling')
 policy_update_type = PolicyType('tosca.policies.Update')
 policy_performance_type = PolicyType('tosca.policies.Performance')
+group_type = GroupType('tosca.groups.Root')
 
 
 class ToscaDefTest(TestCase):
@@ -56,17 +58,21 @@ class ToscaDefTest(TestCase):
         self.assertEqual(network_port_type.parent_type.type,
                          "tosca.nodes.Root")
 
+    def test_group(self):
+        self.assertEqual(group_type.type, "tosca.groups.Root")
+        self.assertIn(ifaces.LIFECYCLE_SHORTNAME, group_type.interfaces)
+
     def test_capabilities(self):
         self.assertEqual(
-            sorted(['tosca.capabilities.Container',
-                    'tosca.capabilities.Node',
-                    'tosca.capabilities.OperatingSystem',
-                    'tosca.capabilities.network.Bindable',
-                    'tosca.capabilities.Scalable']),
+            ['tosca.capabilities.Container',
+             'tosca.capabilities.Node',
+             'tosca.capabilities.OperatingSystem',
+             'tosca.capabilities.Scalable',
+             'tosca.capabilities.network.Bindable'],
             sorted([c.type for c in compute_type.get_capabilities_objects()]))
         self.assertEqual(
-            sorted(['tosca.capabilities.Node',
-                    'tosca.capabilities.network.Linkable']),
+            ['tosca.capabilities.Node',
+             'tosca.capabilities.network.Linkable'],
             sorted([c.type for c in network_type.get_capabilities_objects()]))
         endpoint_properties = ['initiator', 'network_name', 'port',
                                'port_name', 'ports', 'protocol',
@@ -148,8 +154,8 @@ class ToscaDefTest(TestCase):
 
     def test_attributes_def(self):
         self.assertEqual(
-            ['private_address', 'public_address', 'state', 'tosca_id',
-             'tosca_name'],
+            ['networks', 'ports', 'private_address', 'public_address',
+             'state', 'tosca_id', 'tosca_name'],
             sorted(compute_type.get_attributes_def().keys()))
 
     def test_requirements(self):
@@ -166,8 +172,8 @@ class ToscaDefTest(TestCase):
 
     def test_relationship(self):
         self.assertEqual(
-            sorted([('tosca.relationships.HostedOn', 'tosca.nodes.Compute'),
-                    ('tosca.relationships.DependsOn', 'tosca.nodes.Root')]),
+            [('tosca.relationships.DependsOn', 'tosca.nodes.Root'),
+             ('tosca.relationships.HostedOn', 'tosca.nodes.Compute')],
             sorted([(relation.type, node.type) for
                    relation, node in component_type.relationship.items()]))
         self.assertIn(

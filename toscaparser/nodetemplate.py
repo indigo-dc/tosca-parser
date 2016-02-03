@@ -18,6 +18,7 @@ from toscaparser.common.exception import InvalidPropertyValueError
 from toscaparser.common.exception import MissingRequiredFieldError
 from toscaparser.common.exception import TypeMismatchError
 from toscaparser.common.exception import UnknownFieldError
+from toscaparser.common.exception import ValidationError
 from toscaparser.dataentity import DataEntity
 from toscaparser.elements.interfaces import CONFIGURE
 from toscaparser.elements.interfaces import CONFIGURE_SHORTNAME
@@ -93,12 +94,17 @@ class NodeTemplate(EntityTemplate):
             # check if it's type has relationship defined
             if not relationship:
                 parent_reqs = self.type_definition.get_all_requirements()
-                for key in req.keys():
-                    for req_dict in parent_reqs:
-                        if key in req_dict.keys():
-                            relationship = (req_dict.get(key).
-                                            get('relationship'))
-                            break
+                if parent_reqs is None:
+                    ExceptionCollector.appendException(
+                        ValidationError(message='parent_req is ' +
+                                        str(parent_reqs)))
+                else:
+                    for key in req.keys():
+                        for req_dict in parent_reqs:
+                            if key in req_dict.keys():
+                                relationship = (req_dict.get(key).
+                                                get('relationship'))
+                                break
             if relationship:
                 found_relationship_tpl = False
                 # apply available relationship templates if found
@@ -151,7 +157,7 @@ class NodeTemplate(EntityTemplate):
     def _add_relationship_template(self, requirement, rtype):
         req = requirement.copy()
         req['type'] = rtype
-        tpl = RelationshipTemplate(req, rtype, None)
+        tpl = RelationshipTemplate(req, rtype, self.custom_def)
         self.relationship_tpl.append(tpl)
 
     def get_relationship_template(self):
@@ -245,7 +251,7 @@ class NodeTemplate(EntityTemplate):
                     elif name in (CONFIGURE, CONFIGURE_SHORTNAME):
                         self._common_validate_field(
                             value, InterfacesDef.
-                            interfaces_relationship_confiure_operations,
+                            interfaces_relationship_configure_operations,
                             'interfaces')
                     else:
                         ExceptionCollector.appendException(
