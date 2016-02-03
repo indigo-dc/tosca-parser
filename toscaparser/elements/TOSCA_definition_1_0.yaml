@@ -120,6 +120,9 @@ tosca.nodes.Database:
       type: string
       description: >
         User account name for DB administration
+    port:
+      type: integer
+      description: the port the underlying database service will listen to for data
     name:
       required: false
       type: string
@@ -240,18 +243,19 @@ tosca.nodes.network.Network:
          underlying cloud infrastructure. This property is mutually exclusive
          with all other properties except network_name. This can be used alone
          or together with network_name to identify an existing network.
-    network_type:
-      type: string
-      required: no
-      description: >
-         It specifies the nature of the physical network in the underlying
-         cloud infrastructure. Examples are flat, vlan, gre or vxlan. F
     segmentation_id:
       type: string
       required: false
       description: >
          A segmentation identifier in the underlying cloud infrastructure.
          E.g. VLAN ID, GRE tunnel ID, etc..
+    network_type:
+      type: string
+      required: no
+      description: >
+         It specifies the nature of the physical network in the underlying 
+         cloud infrastructure. Examples are flat, vlan, gre or vxlan. 
+         For flat and vlan types, physical_network should be provided too.
     dhcp_enabled:
       type: boolean
       required: false
