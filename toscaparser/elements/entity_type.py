@@ -12,6 +12,8 @@
 
 import logging
 import os
+from toscaparser.common.exception import ExceptionCollector
+from toscaparser.common.exception import ValidationError
 from toscaparser.extensions.exttools import ExtTools
 import toscaparser.utils.yamlparser
 
@@ -50,6 +52,7 @@ class EntityType(object):
     INTERFACE_PREFIX = 'tosca.interfaces.'
     ARTIFACT_PREFIX = 'tosca.artifacts.'
     POLICY_PREFIX = 'tosca.policies.'
+    GROUP_PREFIX = 'tosca.groups.'
     # currently the data types are defined only for network
     # but may have changes in the future.
     DATATYPE_PREFIX = 'tosca.datatypes.network.'
@@ -82,7 +85,7 @@ class EntityType(object):
         value = None
         if defs is None:
             if not hasattr(self, 'defs'):
-                return
+                return None
             defs = self.defs
         if ndtype in defs:
             value = defs[ndtype]
@@ -109,8 +112,13 @@ class EntityType(object):
 
     def get_definition(self, ndtype):
         value = None
-        defs = self.defs
-        if ndtype in defs:
+        if not hasattr(self, 'defs'):
+            defs = None
+            ExceptionCollector.appendException(
+                ValidationError(message="defs is " + str(defs)))
+        else:
+            defs = self.defs
+        if defs is not None and ndtype in defs:
             value = defs[ndtype]
         p = self.parent_type
         if p:
