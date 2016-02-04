@@ -4,7 +4,7 @@ description: TOSCA simple profile to test the attribute inheritance
 
 imports:
   - custom_types/compute_with_prop.yaml
- 
+
 topology_template:
 
   node_templates:
@@ -25,3 +25,4 @@ topology_template:
   outputs:
     server_ip:
      value: { get_attribute: [ server, public_address ] }
+
