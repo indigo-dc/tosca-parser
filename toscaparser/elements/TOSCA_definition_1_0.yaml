@@ -261,7 +261,7 @@ tosca.nodes.network.Network:
          For flat and vlan types, physical_network should be provided too.
     physical_network:
       type: string
-      required: false 
+      required: false
       description: >
          It identifies the physical network on top of which the network is
          implemented, e.g. physnet1. This property is required if network_type
@@ -410,6 +410,10 @@ tosca.relationships.AttachesTo:
     device:
       required: false
       type: string
+
+tosca.relationships.RoutesTo:
+  derived_from: tosca.relationships.ConnectsTo
+  valid_target_types: [ tosca.capabilities.Endpoint ]
 
 tosca.relationships.network.LinksTo:
   derived_from: tosca.relationships.DependsOn
