@@ -90,7 +90,7 @@ class EntityType(object):
         if ndtype in defs:
             value = defs[ndtype]
         if parent:
-            p = self.parent_type
+            p = self
             if p:
                 while p:
                     if ndtype in p.defs:
