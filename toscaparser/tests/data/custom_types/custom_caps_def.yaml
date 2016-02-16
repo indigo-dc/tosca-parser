@@ -1,16 +1,19 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 description: >
-  Compute node type with a parameter for the get property with host test
+  Definition of a node with a capiblity and a parent capability
+  defined in an imported file
 
-node_types:
+capability_types:
 
   tosca.capabilities.SomeCap:
     derived_from: tosca.capabilities.Root
-  
+
   tosca.capabilities.SomeChildCap:
     derived_from: tosca.capabilities.SomeCap
-    
+
+node_types:
+
   tosca.nodes.SomeNode:
     derived_from: tosca.nodes.Root
     capabilities:

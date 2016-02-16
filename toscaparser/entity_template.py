@@ -151,10 +151,11 @@ class EntityTemplate(object):
                     properties = {}
                     # first use the definition default value
                     if c.properties:
-                        for pn in c.properties.keys():
-                            if 'default' in c.properties[pn]:
-                                properties[pn] = c.properties[pn]['default']
-                    # the update (if available) with the node properties
+                        for property_name in c.properties.keys():
+                            prop_def = c.properties[property_name]
+                            if 'default' in prop_def:
+                                properties[property_name] = prop_def['default']
+                    # then update (if available) with the node properties
                     if 'properties' in props and props['properties']:
                         properties.update(props['properties'])
 
