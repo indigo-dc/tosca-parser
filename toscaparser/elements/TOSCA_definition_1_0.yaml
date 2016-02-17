@@ -377,7 +377,7 @@ tosca.nodes.LoadBalancer:
     client:
       type: tosca.capabilities.Endpoint.Public
       occurrences: [0, UNBOUNDED]
-      description: the Floating (IP) client~@~Ys on the public network can connect to
+      description: the Floating (IP) client’s on the public network can connect to
   requirements:
     - application:
         capability: tosca.capabilities.Endpoint
@@ -697,7 +697,7 @@ tosca.capabilities.Container.Docker:
       required: false
       description: >
         The optional identifier of an existing storage volume (resource)
-        that should be used to create the container’s mount point(s) on.
+        that should be used to create the container's mount point(s) on.
 
 ##########################################################################
  # Interfaces Type.
