@@ -22,3 +22,4 @@ topology_template:
 
     node_cap:
       type: tosca.nodes.NodeWithCap
+
