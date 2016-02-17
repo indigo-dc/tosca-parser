@@ -11,7 +11,7 @@ imports:
       repository: some_repository
 
 description: >
-  TOSCA test for launching a Virtual Elastic Cluster. It will launch
+  TOSCA test for testing repositories definition
 
   node_templates:
 
@@ -19,11 +19,3 @@ description: >
       type: tosca.nodes.ComputeWithProp
       properties:
          test: yes
-      capabilities:
-        host:
-         properties:
-           num_cpus: 1
-           mem_size: 1 GB
-        os:
-          properties:
-            type: linux
