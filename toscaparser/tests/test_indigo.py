@@ -40,3 +40,9 @@ class IndigoTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "data/indigo/examples/cellar_webapp_mysql.yaml")
         ToscaTemplate(tosca_tpl)
+
+    def test_mesos_cluster(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/indigo/examples/mesos_cluster.yaml")
+        ToscaTemplate(tosca_tpl)
