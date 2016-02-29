@@ -46,3 +46,9 @@ class IndigoTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "data/indigo/examples/mesos_cluster.yaml")
         ToscaTemplate(tosca_tpl)
+
+    def test_galaxy_elastic_cluster(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/indigo/examples/galaxy_elastic_cluster.yaml")
+        ToscaTemplate(tosca_tpl)
