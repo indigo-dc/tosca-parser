@@ -136,7 +136,7 @@ class GetAttribute(Function):
             attrs_def = node_tpl.type_definition.get_attributes_def()
             attr_def = attrs_def[self.attribute_name]
             if attr_def.schema['type'] == "list":
-                if not self.args[2].isdigit():
+                if not isinstance(self.args[2], int):
                     ExceptionCollector.appendException(
                         ValueError(_('Illegal arguments for function "{0}". '
                                      'Third argument must be a positive'
