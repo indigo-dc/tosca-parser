@@ -188,7 +188,7 @@ class GetAttributeTest(TestCase):
         self.assertIn(expected_msg, six.text_type(err))
         err = self.assertRaises(ValueError,
                                 functions.get_function, None, None,
-                                {'get_attribute': ['x', 'y', 'z']})
+                                {'get_attribute': ['x', 'y', 'z', 'k']})
         self.assertIn(expected_msg, six.text_type(err))
 
     def test_get_attribute_unknown_node_template_name(self):
