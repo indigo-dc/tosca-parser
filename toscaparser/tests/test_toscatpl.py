@@ -724,3 +724,4 @@ class ToscaTemplateTest(TestCase):
         tosca = ToscaTemplate(tosca_tpl)
         rel = tosca.relationship_templates[0]
         self.assertEqual(len(rel.interfaces), 1)
+        self.assertEqual(rel.interfaces[0].type, "Configure")
