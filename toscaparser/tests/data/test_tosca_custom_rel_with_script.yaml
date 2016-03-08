@@ -1,6 +1,6 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
-description: Template for deploying a two-tier application on two servers.
+description: Test template of a custom relationship with a configure script
 
 topology_template:
 
