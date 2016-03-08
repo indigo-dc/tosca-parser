@@ -257,9 +257,10 @@ tosca_single_instance_wordpress_with_url_import.yaml'
         tpl_snippet = '''
         imports:
           - more_definitions:
-              file: https://raw.githubusercontent.com/openstack/\
+             file: https://raw.githubusercontent.com/openstack/\
 heat-translator/master/translator/tests/data/custom_types/wordpress.yaml
-              namespace_prefix: mycompany
+             namespace_prefix: mycompany
+             namespace_uri: http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0
         '''
         path = 'toscaparser/tests/data/tosca_elk.yaml'
         custom_defs = self._imports_content_test(tpl_snippet,
@@ -272,9 +273,10 @@ heat-translator/master/translator/tests/data/custom_types/wordpress.yaml
         tpl_snippet = '''
         imports:
           - more_definitions:
-              file: mycompany.com/ns/tosca/2.0/toscaparser/tests/data\
+             file: mycompany.com/ns/tosca/2.0/toscaparser/tests/data\
 /tosca_elk.yaml
-              namespace_prefix: mycompany
+             namespace_prefix: mycompany
+             namespace_uri: http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0
         '''
         path = 'toscaparser/tests/data/tosca_elk.yaml'
         self.assertRaises(ImportError,

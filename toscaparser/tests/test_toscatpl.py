@@ -720,7 +720,7 @@ class ToscaTemplateTest(TestCase):
     def test_custom_rel_with_script(self):
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "data/tosca_custom_rel_with_script.yaml")
+            "data/test_tosca_custom_rel_with_script.yaml")
         tosca = ToscaTemplate(tosca_tpl)
         rel = tosca.relationship_templates[0]
         self.assertEqual(len(rel.interfaces), 1)

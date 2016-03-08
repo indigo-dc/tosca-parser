@@ -4,6 +4,8 @@ repositories:
   some_repository:
     description: Some repo
     url: https://raw.githubusercontent.com/openstack/tosca-parser/master/toscaparser/tests/data/custom_types/
+    namespace_uri: http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0a
+    namespace_prefix: oasis_tosca
 
 imports:
   - some_import:
