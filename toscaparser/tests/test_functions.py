@@ -164,7 +164,7 @@ class IntrinsicFunctionsTest(TestCase):
         tosca = ToscaTemplate(tosca_tpl)
 
         for node in tosca.nodetemplates:
-            for relationship, trgt in node.relationships.iteritems():
+            for relationship, trgt in node.relationships.items():
                 rel_template = trgt.get_relationship_template()[0]
                 break
 
