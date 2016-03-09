@@ -157,6 +157,26 @@ class IntrinsicFunctionsTest(TestCase):
         self.assertTrue(isinstance(some_input, functions.GetProperty))
         self.assertEqual('someval', some_input.result())
 
+    def test_get_property_source_target_keywords(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/functions/test_get_property_source_target_keywords.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        for node in tosca.nodetemplates:
+            for relationship, trgt in node.relationships.iteritems():
+                rel_template = trgt.get_relationship_template()[0]
+                break
+
+        operation = self._get_operation(rel_template.interfaces,
+                                        'pre_configure_source')
+        target_test = operation.inputs['target_test']
+        self.assertTrue(isinstance(target_test, functions.GetProperty))
+        self.assertEqual(1, target_test.result())
+        source_port = operation.inputs['source_port']
+        self.assertTrue(isinstance(source_port, functions.GetProperty))
+        self.assertEqual(3306, source_port.result())
+
 
 class GetAttributeTest(TestCase):
 

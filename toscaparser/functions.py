@@ -19,6 +19,7 @@ from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownInputError
 from toscaparser.dataentity import DataEntity
 from toscaparser.elements.entity_type import EntityType
+from toscaparser.elements.relationshiptype import RelationshipType
 from toscaparser.utils.gettextutils import _
 
 
@@ -28,6 +29,8 @@ GET_INPUT = 'get_input'
 
 SELF = 'SELF'
 HOST = 'HOST'
+TARGET = 'TARGET'
+SOURCE = 'SOURCE'
 
 HOSTED_ON = 'tosca.relationships.HostedOn'
 
@@ -365,6 +368,18 @@ class GetProperty(Function):
         # enable the HOST value in the function
         if node_template_name == HOST:
             return self._find_host_containing_property()
+        if node_template_name == TARGET:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('TARGET only can be used with Relationships')))
+                return
+            return self.context.target
+        if node_template_name == SOURCE:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('SOURCE only can be used with Relationships')))
+                return
+            return self.context.source
         if not hasattr(self.tosca_tpl, 'nodetemplates'):
             return
         for node_template in self.tosca_tpl.nodetemplates:
