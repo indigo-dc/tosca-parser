@@ -371,13 +371,15 @@ class GetProperty(Function):
         if node_template_name == TARGET:
             if not isinstance(self.context.type_definition, RelationshipType):
                 ExceptionCollector.appendException(
-                    KeyError(_('TARGET only can be used with Relationships')))
+                    KeyError(_('"TARGET" keyword can only be used in context'
+                               ' to "Relationships" target node')))
                 return
             return self.context.target
         if node_template_name == SOURCE:
             if not isinstance(self.context.type_definition, RelationshipType):
                 ExceptionCollector.appendException(
-                    KeyError(_('SOURCE only can be used with Relationships')))
+                    KeyError(_('"SOURCE" keyword can only be used in context'
+                               ' to "Relationships" target node')))
                 return
             return self.context.source
         if not hasattr(self.tosca_tpl, 'nodetemplates'):

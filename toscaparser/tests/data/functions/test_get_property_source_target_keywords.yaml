@@ -17,7 +17,7 @@ topology_template:
         port: 3306
       requirements:
         - host:
-            node: db_server           
+            node: db_server
             relationship:
               type: tosca.relationships.HostedOn
               interfaces:
