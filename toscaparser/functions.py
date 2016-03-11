@@ -134,8 +134,7 @@ class GetAttribute(Function):
                              '"attribute-name"').format(GET_ATTRIBUTE)))
         node_tpl = self._find_node_template_containing_attribute()
         if len(self.args) > 2:
-            # Currently we only check the first level as it
-            # is the only functionality that we need
+            # Currently we only check the first level
             attrs_def = node_tpl.type_definition.get_attributes_def()
             attr_def = attrs_def[self.attribute_name]
             if attr_def.schema['type'] == "list":
@@ -371,13 +370,15 @@ class GetProperty(Function):
         if node_template_name == TARGET:
             if not isinstance(self.context.type_definition, RelationshipType):
                 ExceptionCollector.appendException(
-                    KeyError(_('TARGET only can be used with Relationships')))
+                    KeyError(_('"TARGET" keyword can only be used in context'
+                               ' to "Relationships" target node')))
                 return
             return self.context.target
         if node_template_name == SOURCE:
             if not isinstance(self.context.type_definition, RelationshipType):
                 ExceptionCollector.appendException(
-                    KeyError(_('SOURCE only can be used with Relationships')))
+                    KeyError(_('"SOURCE" keyword can only be used in context'
+                               ' to "Relationships" source node')))
                 return
             return self.context.source
         if not hasattr(self.tosca_tpl, 'nodetemplates'):
