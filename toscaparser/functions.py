@@ -379,7 +379,7 @@ class GetProperty(Function):
             if not isinstance(self.context.type_definition, RelationshipType):
                 ExceptionCollector.appendException(
                     KeyError(_('"SOURCE" keyword can only be used in context'
-                               ' to "Relationships" target node')))
+                               ' to "Relationships" source node')))
                 return
             return self.context.source
         if not hasattr(self.tosca_tpl, 'nodetemplates'):
