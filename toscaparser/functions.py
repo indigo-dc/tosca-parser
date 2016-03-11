@@ -134,8 +134,7 @@ class GetAttribute(Function):
                              '"attribute-name"').format(GET_ATTRIBUTE)))
         node_tpl = self._find_node_template_containing_attribute()
         if len(self.args) > 2:
-            # Currently we only check the first level as it
-            # is the only functionality that we need
+            # Currently we only check the first level
             attrs_def = node_tpl.type_definition.get_attributes_def()
             attr_def = attrs_def[self.attribute_name]
             if attr_def.schema['type'] == "list":

@@ -16,3 +16,4 @@ topology_template:
             implementation: configure.sh
             inputs:
               ip_address: { get_attribute: [ SELF, attr_list, 0 ] }
+
