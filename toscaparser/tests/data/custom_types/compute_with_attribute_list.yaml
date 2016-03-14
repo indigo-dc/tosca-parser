@@ -10,3 +10,4 @@ node_types:
         type: map
         entry_schema:
           type: string
+
