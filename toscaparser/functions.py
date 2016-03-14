@@ -112,7 +112,7 @@ class GetAttribute(Function):
 
     Arguments:
 
-    * Node template name | HOST.
+    * Node template name | SELF | HOST | SOURCE | TARGET.
     * Attribute name.
 
     If the HOST keyword is passed as the node template name argument the
@@ -213,6 +213,20 @@ class GetAttribute(Function):
                                 target_name)
 
     def _find_node_template(self, node_template_name):
+        if node_template_name == TARGET:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('"TARGET" keyword can only be used in context'
+                               ' to "Relationships" target node')))
+                return
+            return self.context.target
+        if node_template_name == SOURCE:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('"SOURCE" keyword can only be used in context'
+                               ' to "Relationships" source node')))
+                return
+            return self.context.source
         name = self.context.name \
             if node_template_name == SELF and \
             not isinstance(self.context, list) \
@@ -239,7 +253,7 @@ class GetProperty(Function):
 
     Arguments:
 
-    * Node template name.
+    * Node template name | SELF | HOST | SOURCE | TARGET.
     * Requirement or capability name (optional).
     * Property name.
 

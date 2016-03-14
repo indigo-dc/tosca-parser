@@ -186,6 +186,11 @@ class GetAttributeTest(TestCase):
             'data',
             filename))
 
+    def _get_operation(self, interfaces, operation):
+        return [
+            interface for interface in interfaces
+            if interface.name == operation][0]
+
     def test_get_attribute_in_outputs(self):
         tpl = self._load_template('tosca_single_instance_wordpress.yaml')
         website_url_output = [
@@ -276,3 +281,21 @@ class GetAttributeTest(TestCase):
             ValueError,
             _('Illegal arguments for function "get_attribute". '
               'Expected arguments: "node-template-name", "attribute-name"'))
+
+    def test_get_attribute_source_target_keywords(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/functions/test_get_attribute_source_target_keywords.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        for node in tosca.nodetemplates:
+            for relationship, trgt in node.relationships.items():
+                rel_template = trgt.get_relationship_template()[0]
+                break
+
+        operation = self._get_operation(rel_template.interfaces,
+                                        'pre_configure_source')
+        target_test = operation.inputs['target_test']
+        self.assertTrue(isinstance(target_test, functions.GetAttribute))
+        source_port = operation.inputs['source_port']
+        self.assertTrue(isinstance(source_port, functions.GetAttribute))
