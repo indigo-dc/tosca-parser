@@ -1,10 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
 description: >
-  TOSCA template for testing get_property with TARGET ans SOURCE keywords.
-
-imports:
-  - ../custom_types/compute_with_prop.yaml
+  TOSCA template for testing get_attribute with TARGET ans SOURCE keywords.
 
 topology_template:
 
@@ -25,10 +22,8 @@ topology_template:
                   pre_configure_source:
                     implementation: some_script.sh
                     inputs:
-                      target_test: { get_property: [ TARGET, test ] }
-                      source_port: { get_property: [ SOURCE, port ] }
+                      target_test: { get_attribute: [ TARGET, public_address ] }
+                      source_port: { get_attribute: [ SOURCE, tosca_name ] }
 
     db_server:
-      type: tosca.nodes.ComputeWithProp
-      properties:
-        test: 1
+      type: tosca.nodes.Compute
