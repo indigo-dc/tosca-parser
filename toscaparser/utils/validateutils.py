@@ -68,6 +68,18 @@ def validate_list(value):
     return value
 
 
+def validate_range(value):
+    validate_list(value)
+    if isinstance(value, list):
+        if len(value) != 2 or not (value[0] <= value[1]):
+            ExceptionCollector.appendException(
+                ValueError(_('"%s" is not a valid range.') % value))
+        validate_integer(value[0])
+        if not value[1] == "UNBOUNDED":
+            validate_integer(value[1])
+    return value
+
+
 def validate_map(value):
     if not isinstance(value, collections.Mapping):
         ExceptionCollector.appendException(
@@ -89,7 +101,19 @@ def validate_boolean(value):
 
 
 def validate_timestamp(value):
-    return dateutil.parser.parse(value)
+    try:
+        # Note: we must return our own exception message
+        # as dateutil's parser returns different types / values on
+        # different systems. OSX, for example, returns a tuple
+        # containing a different error message than Linux
+        dateutil.parser.parse(value)
+    except Exception as e:
+        original_err_msg = str(e)
+        log.error(original_err_msg)
+        ExceptionCollector.appendException(
+            ValueError(_('"%(val)s" is not a valid timestamp. "%(msg)s"') %
+                       {'val': value, 'msg': original_err_msg}))
+    return
 
 
 class TOSCAVersionProperty(object):
