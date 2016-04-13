@@ -32,3 +32,4 @@ topology_template:
       type: tosca.nodes.ComputeWithProp
       properties:
         test: 1
+

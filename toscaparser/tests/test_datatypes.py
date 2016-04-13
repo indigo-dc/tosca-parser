@@ -42,10 +42,12 @@ class DataTypeTest(TestCase):
       properties:
         addresses:
           type: map
+          required: false
           entry_schema:
             type: string
         contacts:
           type: list
+          required: false
           entry_schema:
             type: tosca.my.datatypes.ContactInfo
 
@@ -61,6 +63,19 @@ class DataTypeTest(TestCase):
           type: string
         contact_phone:
           type: string
+
+    tosca.my.datatypes.TestLab:
+      properties:
+        temperature:
+          type: range
+          required: false
+          constraints:
+            - in_range: [-256, UNBOUNDED]
+        humidity:
+          type: range
+          required: false
+          constraints:
+            - in_range: [-256, INFINITY]
     '''
     custom_type_def = yamlparser.simple_parse(custom_type_schema)
 
@@ -69,6 +84,15 @@ class DataTypeTest(TestCase):
         value = yamlparser.simple_parse(value_snippet)
         self.assertEqual(value, {})
 
+    # TODO(Matt) - opened as bug 1555300
+    # Need a test for PortSpec normative data type
+    # that tests the spec. requirement: "A valid PortSpec
+    # must have at least one of the following properties:
+    # target, target_range, source or source_range."
+    # TODO(Matt) - opened as bug 1555310
+    # test PortSpec value for source and target
+    # against the source_range and target_range
+    # when specified.
     def test_built_in_datatype(self):
         value_snippet = '''
         private_network:
@@ -325,3 +349,60 @@ class DataTypeTest(TestCase):
         self.assertRaises(exception.ValidationError, ToscaTemplate, tpl_path)
         exception.ExceptionCollector.assertExceptionMessage(
             ValueError, _('"123456789" is not a string.'))
+
+    def test_valid_range_type(self):
+        value_snippet = '''
+        user_port:
+          protocol: tcp
+          target_range:  [20000, 60000]
+          source_range:  [1000, 3000]
+        '''
+        value = yamlparser.simple_parse(value_snippet)
+        data = DataEntity('PortSpec', value.get('user_port'))
+        self.assertIsNotNone(data.validate())
+
+    def test_invalid_range_datatype(self):
+        value_snippet = '''
+        user_port:
+          protocol: tcp
+          target_range: [20000]
+        '''
+        value = yamlparser.simple_parse(value_snippet)
+        data = DataEntity('PortSpec', value.get('user_port'))
+        err = self.assertRaises(ValueError, data.validate)
+        self.assertEqual(_('"[20000]" is not a valid range.'
+                           ),
+                         err.__str__())
+
+        value_snippet = '''
+        user_port:
+          protocol: tcp
+          target_range: [20000, 3000]
+        '''
+        value = yamlparser.simple_parse(value_snippet)
+        data = DataEntity('PortSpec', value.get('user_port'))
+        err = self.assertRaises(ValueError, data.validate)
+        self.assertEqual(_('"[20000, 3000]" is not a valid range.'
+                           ),
+                         err.__str__())
+
+        value_snippet = '''
+        humidity: [-100, 100]
+        '''
+        value = yamlparser.simple_parse(value_snippet)
+        data = DataEntity('tosca.my.datatypes.TestLab',
+                          value, DataTypeTest.custom_type_def)
+        err = self.assertRaises(exception.InvalidSchemaError,
+                                lambda: data.validate())
+        self.assertEqual(_('The property "in_range" expects comparable values.'
+                           ),
+                         err.__str__())
+
+    def test_range_unbounded(self):
+        value_snippet = '''
+        temperature: [-100, 999999]
+        '''
+        value = yamlparser.simple_parse(value_snippet)
+        data = DataEntity('tosca.my.datatypes.TestLab', value,
+                          DataTypeTest.custom_type_def)
+        self.assertIsNotNone(data.validate())
