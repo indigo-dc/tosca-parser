@@ -818,6 +818,7 @@ tosca.datatypes.Credential:
       required: false
     token_type:
       type: string
+      default: password
       required: true
     token:
       type: string
