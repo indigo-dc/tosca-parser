@@ -406,3 +406,25 @@ class DataTypeTest(TestCase):
         data = DataEntity('tosca.my.datatypes.TestLab', value,
                           DataTypeTest.custom_type_def)
         self.assertIsNotNone(data.validate())
+
+    def test_incorrect_field_in_datatype(self):
+        tpl_snippet = '''
+        tosca_definitions_version: tosca_simple_yaml_1_0
+        topology_template:
+          node_templates:
+            server:
+              type: tosca.nodes.Compute
+
+            webserver:
+              type: tosca.nodes.WebServer
+              properties:
+                admin_credential:
+                  user: username
+                  token: some_pass
+                  adsasd: asdas
+              requirements:
+                - host: server
+        '''
+        tpl = yamlparser.simple_parse(tpl_snippet)
+        self.assertRaises(exception.ValidationError, ToscaTemplate,
+                          None, None, None, tpl)

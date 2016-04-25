@@ -127,6 +127,7 @@ class GetAttribute(Function):
     * { get_attribute: [ server, private_address ] }
     * { get_attribute: [ HOST, private_address ] }
     * { get_attribute: [ HOST, private_address, 0 ] }
+    * { get_attribute: [ HOST, private_address, 0, some_prop] }
     """
 
     def validate(self):
