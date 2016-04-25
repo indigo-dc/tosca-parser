@@ -58,3 +58,9 @@ class IndigoTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "data/indigo/examples/indigo_jobs.yaml")
         ToscaTemplate(tosca_tpl)
+
+    def test_indigo_node_with_image(self):
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/indigo/examples/node_with_image.yaml")
+        ToscaTemplate(tosca_tpl)
