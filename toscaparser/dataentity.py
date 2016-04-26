@@ -91,7 +91,7 @@ class DataEntity(object):
             for name, value in list(self.value.items()):
                 schema_name = self._find_schema(name)
                 if not schema_name:
-                    break
+                    continue
                 prop_schema = Schema(name, schema_name)
                 # check if field value meets type defined
                 DataEntity.validate_datatype(prop_schema.type, value,
