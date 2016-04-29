@@ -421,10 +421,15 @@ class DataTypeTest(TestCase):
                 admin_credential:
                   user: username
                   token: some_pass
-                  adsasd: asdas
+                  some_field: value
               requirements:
                 - host: server
         '''
         tpl = yamlparser.simple_parse(tpl_snippet)
-        self.assertRaises(exception.ValidationError, ToscaTemplate,
-                          None, None, None, tpl)
+        err = self.assertRaises(exception.ValidationError, ToscaTemplate,
+                                None, None, None, tpl)
+        self.assertIn(_('The pre-parsed input failed validation with the '
+                        'following error(s): \n\n\tUnknownFieldError: Data '
+                        'value of type "tosca.datatypes.Credential" contains'
+                        ' unknown field "some_field". Refer to the definition'
+                        ' to verify valid values'), err.__str__())
