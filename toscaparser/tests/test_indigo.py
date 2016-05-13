@@ -17,50 +17,13 @@ from toscaparser.tosca_template import ToscaTemplate
 
 class IndigoTest(TestCase):
 
-    def test_galaxy(self):
-        tosca_tpl = os.path.join(
+    def test_indigo_examples(self):
+        filenames = os.listdir(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/galaxy_tosca.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_web_mysql(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/web_mysql_tosca.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_elastic_cluster(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/elastic_cluster.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_cellar_webapp_mysql(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/cellar_webapp_mysql.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_mesos_cluster(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/mesos_cluster.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_galaxy_elastic_cluster(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/galaxy_elastic_cluster.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_indigo_jobs(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/indigo_jobs.yaml")
-        ToscaTemplate(tosca_tpl)
-
-    def test_indigo_node_with_image(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/indigo/examples/node_with_image.yaml")
-        ToscaTemplate(tosca_tpl)
+            "data/indigo/examples"))
+        for filename in filenames:
+            if filename.endswith(".yaml"):
+                filename = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    "data/indigo/examples", filename)
+                ToscaTemplate(filename)
