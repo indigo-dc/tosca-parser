@@ -23,7 +23,6 @@ class IndigoTest(TestCase):
             "data/indigo/examples"))
         for filename in filenames:
             if filename.endswith(".yaml"):
-                print filename
                 filename = os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
                     "data/indigo/examples", filename)
