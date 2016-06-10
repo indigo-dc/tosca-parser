@@ -637,6 +637,7 @@ class Concat(Function):
     def result(self):
         return self
 
+
 class Token(Function):
     """Validate the function and provide an instance of the function
 
