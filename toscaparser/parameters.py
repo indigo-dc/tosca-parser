@@ -27,8 +27,8 @@ log = logging.getLogger('tosca')
 
 class Input(object):
 
-    INPUTFIELD = (TYPE, DESCRIPTION, DEFAULT, CONSTRAINTS) = \
-        ('type', 'description', 'default', 'constraints')
+    INPUTFIELD = (TYPE, DESCRIPTION, DEFAULT, CONSTRAINTS, REQUIRED) = \
+        ('type', 'description', 'default', 'constraints', 'required')
 
     def __init__(self, name, schema_dict):
         self.name = name
@@ -53,7 +53,7 @@ class Input(object):
     def validate(self, value=None):
         self._validate_field()
         self.validate_type(self.type)
-        if value:
+        if value is not None:
             self._validate_value(value)
 
     def _validate_field(self):
