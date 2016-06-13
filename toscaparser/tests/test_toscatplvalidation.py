@@ -1519,5 +1519,3 @@ heat-translator/master/translator/tests/data/custom_types/wordpress.yaml
                             'unknown field "oss". Refer to the definition '
                             'to verify valid values.')
         self.assertEqual(expectedmessage, err.__str__())
-
-
