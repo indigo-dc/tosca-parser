@@ -106,6 +106,7 @@ class ToscaTemplateValidationTest(TestCase):
             description: Number of CPUs for the server.
             constraint:
               - valid_values: [ 1, 2, 4, 8 ]
+            required: yes
         '''
         inputs = (toscaparser.utils.yamlparser.
                   simple_parse(tpl_snippet)['inputs'])
