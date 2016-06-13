@@ -332,7 +332,7 @@ class TokenTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             filename))
 
-    def test_validate_concat(self):
+    def test_validate_token(self):
         tosca = self._load_template("data/functions/test_token.yaml")
         server_url_output = [
             output for output in tosca.outputs if output.name == 'url'][0]
@@ -341,8 +341,15 @@ class TokenTest(TestCase):
         self.assertIsInstance(func, functions.Token)
 
         self.assertRaises(exception.ValidationError, self._load_template,
-                          'data/functions/test_token_invalid.yaml')
+                          'data/functions/test_token_invalid_num.yaml')
         exception.ExceptionCollector.assertExceptionMessage(
             ValueError,
             _('Invalid arguments for function "token". Expected at least '
               'three arguments.'))
+
+        self.assertRaises(exception.ValidationError, self._load_template,
+                          'data/functions/test_token_invalid_param.yaml')
+        exception.ExceptionCollector.assertExceptionMessage(
+            ValueError,
+            _('Invalid arguments for function "token". Expected '
+              'integer value as third argument.'))

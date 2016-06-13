@@ -20,3 +20,5 @@ topology_template:
             implementation: configure.sh
             inputs:
               ip_address: { get_attribute: [ SELF, endpoint, credential, 0, token ] }
+
+

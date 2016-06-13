@@ -106,6 +106,7 @@ class ToscaTemplateValidationTest(TestCase):
             description: Number of CPUs for the server.
             constraint:
               - valid_values: [ 1, 2, 4, 8 ]
+            required: yes
         '''
         inputs = (toscaparser.utils.yamlparser.
                   simple_parse(tpl_snippet)['inputs'])
@@ -1492,3 +1493,11 @@ heat-translator/master/translator/tests/data/custom_types/wordpress.yaml
             os.path.dirname(os.path.abspath(__file__)),
             "data/test_credential_datatype.yaml")
         self.assertIsNotNone(ToscaTemplate(tosca_tpl))
+
+    def test_invalid_default_value(self):
+        tpl_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_invalid_input_defaults.yaml")
+        self.assertRaises(exception.ValidationError, ToscaTemplate, tpl_path)
+        exception.ExceptionCollector.assertExceptionMessage(
+            ValueError, _('"two" is not an integer.'))
