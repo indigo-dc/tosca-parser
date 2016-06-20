@@ -27,8 +27,9 @@ log = logging.getLogger('tosca')
 
 class Input(object):
 
-    INPUTFIELD = (TYPE, DESCRIPTION, DEFAULT, CONSTRAINTS, REQUIRED) = \
-        ('type', 'description', 'default', 'constraints', 'required')
+    INPUTFIELD = (TYPE, DESCRIPTION, DEFAULT, CONSTRAINTS, REQUIRED,
+                  STATUS) = ('type', 'description', 'default',
+                             'constraints', 'required', 'status')
 
     def __init__(self, name, schema_dict):
         self.name = name
