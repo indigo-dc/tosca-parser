@@ -107,6 +107,7 @@ class ToscaTemplateValidationTest(TestCase):
             constraint:
               - valid_values: [ 1, 2, 4, 8 ]
             required: yes
+            status: supported
         '''
         inputs = (toscaparser.utils.yamlparser.
                   simple_parse(tpl_snippet)['inputs'])
