@@ -668,16 +668,10 @@ class Token(Function):
                 ValueError(_('Invalid arguments for function "{0}". Expected '
                              'at least three arguments.').format(TOKEN)))
         else:
-            if isinstance(self.args[1], str):
-                if len(self.args[1]) != 1:
-                    ExceptionCollector.appendException(
-                        ValueError(_('Invalid arguments for function "{0}". '
-                                     'Expected single char value as second '
-                                     'argument.').format(TOKEN)))
-            else:
+            if not isinstance(self.args[1], str) or len(self.args[1]) != 1:
                 ExceptionCollector.appendException(
                     ValueError(_('Invalid arguments for function "{0}". '
-                                 'Expected string value as second '
+                                 'Expected single char value as second '
                                  'argument.').format(TOKEN)))
 
             if not isinstance(self.args[2], int):

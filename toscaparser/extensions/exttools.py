@@ -35,8 +35,8 @@ class ExtTools(object):
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
         extdirs = [e for e in os.listdir(abs_path) if
-                   not e.startswith('tests') and
-                   not e.endswith('.pyc') and not e.endswith('.py')]
+                   not e.startswith('tests') and not e.endswith('.py') and
+                   not e.endswith('.pyc') and not e.endswith('.pyo')]
 
         for e in extdirs:
             log.info(e)
