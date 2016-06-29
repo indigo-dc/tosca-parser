@@ -341,15 +341,16 @@ class TokenTest(TestCase):
         self.assertIsInstance(func, functions.Token)
 
         self.assertRaises(exception.ValidationError, self._load_template,
-                          'data/functions/test_token_invalid_num.yaml')
+                          'data/functions/test_token_invalid.yaml')
         exception.ExceptionCollector.assertExceptionMessage(
             ValueError,
             _('Invalid arguments for function "token". Expected at least '
               'three arguments.'))
-
-        self.assertRaises(exception.ValidationError, self._load_template,
-                          'data/functions/test_token_invalid_param.yaml')
         exception.ExceptionCollector.assertExceptionMessage(
             ValueError,
             _('Invalid arguments for function "token". Expected '
               'integer value as third argument.'))
+        exception.ExceptionCollector.assertExceptionMessage(
+            ValueError,
+            _('Invalid arguments for function "token". Expected '
+              'single char value as second argument.'))
