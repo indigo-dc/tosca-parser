@@ -13,3 +13,4 @@ topology_template:
       value: { token: [ get_attribute: [ server, public_address ],
                          '.' ,
                          0 ] }
+

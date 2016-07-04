@@ -659,7 +659,6 @@ class Token(Function):
     Example:
 
      { token: [ get_attribute: [ srv, data_endpoint, ip_address ], ':', 1 ] }
-
     """
 
     def validate(self):
