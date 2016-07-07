@@ -20,4 +20,3 @@ node_types:
       endpoint:
         type: tosca.capabilities.indigo.Endpoint
 
-

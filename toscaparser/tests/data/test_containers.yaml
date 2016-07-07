@@ -41,3 +41,4 @@ topology_template:
             num_cpus: 1
             disk_size: 10 GB
             mem_size: 2 MB
+

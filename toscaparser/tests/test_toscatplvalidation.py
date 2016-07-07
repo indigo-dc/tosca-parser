@@ -105,7 +105,7 @@ class ToscaTemplateValidationTest(TestCase):
             type: integer
             description: Number of CPUs for the server.
             constraint:
-              - valid_values: [ 1, 2, 4, 8 ]
+              - valid_values: [ 1, 2, 4 ]
             required: yes
             status: supported
         '''
