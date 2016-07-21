@@ -18,16 +18,20 @@ from toscaparser.tosca_template import ToscaTemplate
 class IndigoTest(TestCase):
 
     def test_indigo_examples(self):
+        '''
+        Looks for all the yaml files under the folder and subfolders of
+        'data/indigo/examples'
+        '''
         filenames = []
         try:
-            filenames = os.listdir(os.path.join(
+            tests_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                "data/indigo/examples"))
+                "data/indigo/examples")
+            filenames = [os.path.join(root, name)
+                         for root, dirs, files in os.walk(tests_path)
+                         for name in files
+                         if name.endswith((".yaml"))]
         except Exception:
             pass
         for filename in filenames:
-            if filename.endswith(".yaml"):
-                filename = os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "data/indigo/examples", filename)
-                ToscaTemplate(filename)
+            ToscaTemplate(filename)
