@@ -18,10 +18,6 @@ from toscaparser.tosca_template import ToscaTemplate
 class IndigoTest(TestCase):
 
     def test_indigo_examples(self):
-        '''
-        Looks for all the yaml files under the folder and subfolders of
-        'data/indigo/examples'
-        '''
         filenames = []
         try:
             tests_path = os.path.join(
