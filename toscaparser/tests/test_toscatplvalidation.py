@@ -35,7 +35,9 @@ class ToscaTemplateValidationTest(TestCase):
         tpl_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "data/tosca_single_instance_wordpress.yaml")
-        self.assertIsNotNone(ToscaTemplate(tpl_path))
+        params = {'db_name': 'my_wordpress', 'db_user': 'my_db_user',
+                  'db_root_pwd': '12345678'}
+        self.assertIsNotNone(ToscaTemplate(tpl_path, params))
 
     def test_first_level_sections(self):
         tpl_path = os.path.join(
@@ -97,6 +99,11 @@ class ToscaTemplateValidationTest(TestCase):
             _('Policy "mycompany.mytypes.myScalingPolicy" contains unknown '
               'field "derived1_from". Refer to the definition to '
               'verify valid values.'))
+        exception.ExceptionCollector.assertExceptionMessage(
+            exception.UnknownFieldError,
+            _('Relationshiptype "test.relation.connects" contains unknown '
+              'field "derived_from4". Refer to the definition to '
+              'verify valid values.'))
 
     def test_unsupported_type(self):
         tpl_snippet = '''
@@ -115,7 +122,7 @@ class ToscaTemplateValidationTest(TestCase):
         self.assertEqual(expectedmessage, err.__str__())
 
     def test_inputs(self):
-        tpl_snippet = '''
+        tpl_snippet1 = '''
         inputs:
           cpus:
             type: integer
@@ -125,14 +132,41 @@ class ToscaTemplateValidationTest(TestCase):
             required: yes
             status: supported
         '''
-        inputs = (toscaparser.utils.yamlparser.
-                  simple_parse(tpl_snippet)['inputs'])
-        name, attrs = list(inputs.items())[0]
-        input = Input(name, attrs)
-        err = self.assertRaises(exception.UnknownFieldError, input.validate)
-        self.assertEqual(_('Input "cpus" contains unknown field "constraint". '
-                           'Refer to the definition to verify valid values.'),
-                         err.__str__())
+        tpl_snippet2 = '''
+        inputs:
+          cpus:
+            type: integer
+            description: Number of CPUs for the server.
+            constraints:
+              - valid_values: [ 1, 2, 4 ]
+            required: yes
+            status: supported
+        '''
+        tpl_snippet3 = '''
+        inputs:
+          some_list:
+            type: list
+            description: List of items
+            entry_schema:
+              type: string
+            default: []
+        '''
+        inputs1 = (toscaparser.utils.yamlparser.
+                   simple_parse(tpl_snippet1)['inputs'])
+        name1, attrs1 = list(inputs1.items())[0]
+        inputs2 = (toscaparser.utils.yamlparser.
+                   simple_parse(tpl_snippet2)['inputs'])
+        name2, attrs2 = list(inputs2.items())[0]
+        try:
+            Input(name1, attrs1)
+        except Exception as err:
+            self.assertEqual(_('Input "cpus" contains unknown field '
+                               '"constraint". Refer to the definition to '
+                               'verify valid values.'),
+                             err.__str__())
+        input2 = Input(name2, attrs2)
+        self.assertTrue(input2.required)
+        toscaparser.utils.yamlparser.simple_parse(tpl_snippet3)['inputs']
 
     def _imports_content_test(self, tpl_snippet, path, custom_type_def):
         imports = (toscaparser.utils.yamlparser.
@@ -1536,3 +1570,34 @@ heat-translator/master/translator/tests/data/custom_types/wordpress.yaml
                             'unknown field "oss". Refer to the definition '
                             'to verify valid values.')
         self.assertEqual(expectedmessage, err.__str__())
+
+    def test_qualified_name(self):
+        tpl_snippet_full_name = '''
+        node_templates:
+          supported_type:
+            type: tosca.nodes.Compute
+        '''
+        tpl = (
+            toscaparser.utils.yamlparser.simple_parse(
+                tpl_snippet_full_name))
+        TopologyTemplate(tpl, None)
+
+        tpl_snippet_short_name = '''
+        node_templates:
+          supported_type:
+            type: Compute
+        '''
+        tpl = (
+            toscaparser.utils.yamlparser.simple_parse(
+                tpl_snippet_short_name))
+        TopologyTemplate(tpl, None)
+
+        tpl_snippet_qualified_name = '''
+        node_templates:
+          supported_type:
+            type: tosca:Compute
+        '''
+        tpl = (
+            toscaparser.utils.yamlparser.simple_parse(
+                tpl_snippet_qualified_name))
+        TopologyTemplate(tpl, None)
