@@ -14,6 +14,7 @@
 
 import abc
 import six
+import toscaparser.elements.interfaces
 
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownInputError
@@ -22,12 +23,14 @@ from toscaparser.elements.constraints import Schema
 from toscaparser.elements.datatype import DataType
 from toscaparser.elements.entity_type import EntityType
 from toscaparser.elements.relationshiptype import RelationshipType
+from toscaparser.elements.statefulentitytype import StatefulEntityType
 from toscaparser.utils.gettextutils import _
 
 
 GET_PROPERTY = 'get_property'
 GET_ATTRIBUTE = 'get_attribute'
 GET_INPUT = 'get_input'
+GET_OPERATION_OUTPUT = 'get_operation_output'
 CONCAT = 'concat'
 TOKEN = 'token'
 
@@ -207,7 +210,7 @@ class GetAttribute(Function):
     def _find_node_template_containing_attribute(self):
         node_tpl = self._find_node_template(self.args[0])
         if node_tpl and \
-            not self._attribute_exists_in_type(node_tpl.type_definition):
+                not self._attribute_exists_in_type(node_tpl.type_definition):
             ExceptionCollector.appendException(
                 KeyError(_('Attribute "%(att)s" was not found in node '
                            'template "%(ntpl)s".') %
@@ -231,7 +234,7 @@ class GetAttribute(Function):
                     target_type = target_node.type_definition
                     for capability in target_type.get_capabilities_objects():
                         if capability.type in \
-                            hosted_on_rel['valid_target_types']:
+                                hosted_on_rel['valid_target_types']:
                             if self._attribute_exists_in_type(target_type):
                                 return target_node
                             return self._find_host_containing_attribute(
@@ -611,6 +614,88 @@ class GetProperty(Function):
         return None
 
 
+class GetOperationOutput(Function):
+    def validate(self):
+        if len(self.args) == 4:
+            self._find_node_template(self.args[0])
+            interface_name = self._find_interface_name(self.args[1])
+            self._find_operation_name(interface_name, self.args[2])
+        else:
+            ExceptionCollector.appendException(
+                ValueError(_('Illegal arguments for function "{0}". Expected '
+                             'arguments: "template_name","interface_name",'
+                             '"operation_name","output_variable_name"'
+                             ).format(GET_OPERATION_OUTPUT)))
+            return
+
+    def _find_interface_name(self, interface_name):
+        if interface_name in toscaparser.elements.interfaces.SECTIONS:
+            return interface_name
+        else:
+            ExceptionCollector.appendException(
+                ValueError(_('Enter a valid interface name'
+                             ).format(GET_OPERATION_OUTPUT)))
+            return
+
+    def _find_operation_name(self, interface_name, operation_name):
+        if(interface_name == 'Configure' or
+           interface_name == 'tosca.interfaces.node.relationship.Configure'):
+            if(operation_name in
+               StatefulEntityType.
+               interfaces_relationship_configure_operations):
+                return operation_name
+            else:
+                ExceptionCollector.appendException(
+                    ValueError(_('Enter an operation of Configure interface'
+                                 ).format(GET_OPERATION_OUTPUT)))
+                return
+        elif(interface_name == 'Standard' or
+             interface_name == 'tosca.interfaces.node.lifecycle.Standard'):
+            if(operation_name in
+               StatefulEntityType.interfaces_node_lifecycle_operations):
+                return operation_name
+            else:
+                ExceptionCollector.appendException(
+                    ValueError(_('Enter an operation of Standard interface'
+                                 ).format(GET_OPERATION_OUTPUT)))
+                return
+        else:
+            ExceptionCollector.appendException(
+                ValueError(_('Enter a valid operation name'
+                             ).format(GET_OPERATION_OUTPUT)))
+            return
+
+    def _find_node_template(self, node_template_name):
+        if node_template_name == TARGET:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('"TARGET" keyword can only be used in context'
+                               ' to "Relationships" target node')))
+                return
+            return self.context.target
+        if node_template_name == SOURCE:
+            if not isinstance(self.context.type_definition, RelationshipType):
+                ExceptionCollector.appendException(
+                    KeyError(_('"SOURCE" keyword can only be used in context'
+                               ' to "Relationships" source node')))
+                return
+            return self.context.source
+        name = self.context.name \
+            if node_template_name == SELF and \
+            not isinstance(self.context, list) \
+            else node_template_name
+        for node_template in self.tosca_tpl.nodetemplates:
+            if node_template.name == name:
+                return node_template
+        ExceptionCollector.appendException(
+            KeyError(_(
+                'Node template "{0}" was not found.'
+                ).format(node_template_name)))
+
+    def result(self):
+        return self
+
+
 class Concat(Function):
     """Validate the function and provide an instance of the function
 
@@ -688,6 +773,7 @@ function_mappings = {
     GET_PROPERTY: GetProperty,
     GET_INPUT: GetInput,
     GET_ATTRIBUTE: GetAttribute,
+    GET_OPERATION_OUTPUT: GetOperationOutput,
     CONCAT: Concat,
     TOKEN: Token
 }
