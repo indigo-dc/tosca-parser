@@ -114,9 +114,28 @@ class UnknownInputError(TOSCAException):
     msg_fmt = _('Unknown input "%(input_name)s".')
 
 
+class UnknownOutputError(TOSCAException):
+    msg_fmt = _('Unknown output "%(output_name)s" in %(where)s.')
+
+
+class MissingRequiredInputError(TOSCAException):
+    msg_fmt = _('%(what)s is missing required input definition '
+                'of input "%(input_name)s".')
+
+
 class MissingRequiredParameterError(TOSCAException):
-    msg_fmt = _('%(what)s is missing required parameter for input: '
+    msg_fmt = _('%(what)s is missing required parameter for input '
                 '"%(input_name)s".')
+
+
+class MissingDefaultValueError(TOSCAException):
+    msg_fmt = _('%(what)s is missing required default value '
+                'of input "%(input_name)s".')
+
+
+class MissingRequiredOutputError(TOSCAException):
+    msg_fmt = _('%(what)s is missing required output definition '
+                'of output "%(output_name)s".')
 
 
 class InvalidPropertyValueError(TOSCAException):
