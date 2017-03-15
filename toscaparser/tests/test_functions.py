@@ -321,6 +321,7 @@ class GetAttributeTest(TestCase):
     def test_get_attribute_capability_inheritance(self):
         self._load_template('functions/test_container_cap_child.yaml')
 
+
 class ConcatTest(TestCase):
 
     def _load_template(self, filename):
