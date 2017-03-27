@@ -591,7 +591,6 @@ class GetProperty(Function):
                         return self._find_host_containing_property(
                             target_name)
 
-
         return None
 
     def _property_exists_in_type(self, type_definition):
