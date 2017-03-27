@@ -198,6 +198,7 @@ class IntrinsicFunctionsTest(TestCase):
         self.assertIsInstance(some_prop.value, functions.GetProperty)
         self.assertEqual('someval', some_prop.value.result())
 
+
 class GetAttributeTest(TestCase):
 
     def _load_template(self, filename):
