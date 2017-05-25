@@ -339,6 +339,26 @@ node_types:
           relationship: tosca.relationships.network.LinksTo
           node: tosca.nodes.network.Network
 
+  tosca.nodes.network.FloatingIP:
+    derived_from: tosca.nodes.Root
+    description: >
+      The TOSCA FloatingIP node represents a floating IP that can associate to a Port.
+    properties:
+      floating_network:
+        type: string
+        required: true
+      floating_ip_address:
+        type: string
+        required: false
+      port_id:
+        type: string
+        required: false
+    requirements:
+      - link:
+          capability: tosca.capabilities.network.Linkable
+          relationship: tosca.relationships.network.LinksTo
+          node: tosca.nodes.network.Port
+
   tosca.nodes.ObjectStorage:
     derived_from: tosca.nodes.Root
     description: >
@@ -917,6 +937,11 @@ policy_types:
     derived_from: tosca.policies.Root
     description: The TOSCA Policy Type definition that is used to govern
       scaling of TOSCA nodes or groups of nodes.
+
+  tosca.policies.Monitoring:
+    derived_from: tosca.policies.Root
+    description: The TOSCA Policy Type definition that is used to govern
+      monitoring of TOSCA nodes or groups of nodes.
 
   tosca.policies.Update:
     derived_from: tosca.policies.Root

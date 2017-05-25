@@ -25,3 +25,4 @@ topology_template:
 
     server:
       type: tosca.nodes.Compute
+

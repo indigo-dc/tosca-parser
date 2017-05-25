@@ -18,5 +18,5 @@ node_types:
   tosca.nodes.NodeWithCap:
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
-      host: 
+      host:
         type: tosca.capabilities.SomeCap
