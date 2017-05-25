@@ -16,12 +16,16 @@ import logging
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import UnknownFieldError
 from toscaparser.entity_template import EntityTemplate
+from toscaparser.utils import validateutils
 
-SECTIONS = (DESCRIPTION, EVENT, SCHEDULE, TARGET_FILTER, CONDITION, ACTION) = \
-           ('description', 'event_type', 'schedule',
-            'target_filter', 'condition', 'action')
-CONDITION_KEYNAMES = (CONTRAINT, PERIOD, EVALUATIONS, METHOD) = \
-                     ('constraint', 'period', 'evaluations', 'method')
+SECTIONS = (DESCRIPTION, EVENT, SCHEDULE, METER_NAME, METADATA,
+            TARGET_FILTER, CONDITION, ACTION) = \
+           ('description', 'event_type', 'schedule', 'meter_name',
+            'metadata', 'target_filter', 'condition', 'action')
+CONDITION_KEYNAMES = (CONSTRAINT, PERIOD, EVALUATIONS, METHOD,
+                      THRESHOLD, COMPARISON_OPERATOR) = \
+                     ('constraint', 'period', 'evaluations',
+                      'method', 'threshold', 'comparison_operator')
 log = logging.getLogger('tosca')
 
 
@@ -34,6 +38,7 @@ class Triggers(EntityTemplate):
         self.trigger_tpl = trigger_tpl
         self._validate_keys()
         self._validate_condition()
+        self._validate_input()
 
     def get_description(self):
         return self.trigger_tpl['description']
@@ -66,3 +71,12 @@ class Triggers(EntityTemplate):
                 ExceptionCollector.appendException(
                     UnknownFieldError(what='Triggers "%s"' % self.name,
                                       field=key))
+
+    def _validate_input(self):
+        for key, value in self.get_condition().items():
+            if key in [PERIOD, EVALUATIONS]:
+                validateutils.validate_integer(value)
+            elif key == THRESHOLD:
+                validateutils.validate_numeric(value)
+            elif key in [METER_NAME, METHOD]:
+                validateutils.validate_string(value)
