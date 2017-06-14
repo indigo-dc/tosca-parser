@@ -34,5 +34,5 @@ class IndigoTest(TestCase):
             ToscaTemplate(filename)
             # path to solve some strange timeouts when
             # loading too much examples in a raw ...
-            if num % 5 == 0:
-                time.sleep(10)
+            if num % 10 == 0:
+                time.sleep(1)
