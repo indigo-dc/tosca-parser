@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+import time
 from toscaparser.tests.base import TestCase
 from toscaparser.tosca_template import ToscaTemplate
 
@@ -29,5 +30,9 @@ class IndigoTest(TestCase):
                          if name.endswith((".yaml"))]
         except Exception:
             pass
-        for filename in filenames:
+        for num, filename in enumerate(filenames):
             ToscaTemplate(filename)
+            # path to solve some strange timeouts when
+            # loading too much examples in a raw ...
+            if num % 10 == 0:
+                time.sleep(1)
