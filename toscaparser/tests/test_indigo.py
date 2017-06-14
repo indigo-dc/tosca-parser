@@ -35,4 +35,4 @@ class IndigoTest(TestCase):
             # path to solve some strange timeouts when
             # loading too much examples in a raw ...
             if num % 5 == 0:
-                time.sleep(1)
+                time.sleep(10)
