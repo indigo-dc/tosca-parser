@@ -11,7 +11,6 @@
 #    under the License.
 
 import os
-import time
 from toscaparser.tests.base import TestCase
 from toscaparser.tosca_template import ToscaTemplate
 
@@ -31,8 +30,21 @@ class IndigoTest(TestCase):
         except Exception:
             pass
         for num, filename in enumerate(filenames):
-            ToscaTemplate(filename)
-            # path to solve some strange timeouts when
-            # loading too much examples in a raw ...
-            if num % 10 == 0:
-                time.sleep(1)
+            if num < 20:
+                ToscaTemplate(filename)
+
+    def test_indigo_examples2(self):
+        filenames = []
+        try:
+            tests_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "data/indigo/examples")
+            filenames = [os.path.join(root, name)
+                         for root, dirs, files in os.walk(tests_path)
+                         for name in files
+                         if name.endswith((".yaml"))]
+        except Exception:
+            pass
+        for num, filename in enumerate(filenames):
+            if num >= 20:
+                ToscaTemplate(filename)
