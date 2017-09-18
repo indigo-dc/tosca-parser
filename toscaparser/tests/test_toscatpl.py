@@ -216,6 +216,10 @@ class ToscaTemplateTest(TestCase):
         tosca_tpl = self._load_template('test_no_outputs_in_template.yaml')
         self.assertEqual(0, len(tosca_tpl.outputs))
 
+    def test_template_file_with_suffix_yml(self):
+        tosca_tpl = self._load_template('custom_types/wordpress.yml')
+        self.assertIsNotNone(tosca_tpl)
+
     def test_relationship_interface(self):
         template = ToscaTemplate(self.tosca_elk_tpl)
         for node_tpl in template.nodetemplates:
@@ -510,7 +514,8 @@ class ToscaTemplateTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "data/test_instance_nested_imports.yaml")
         tosca = ToscaTemplate(tosca_tpl)
-        expected_custom_types = ['tosca.nodes.WebApplication.WordPress',
+        expected_custom_types = ['tosca.nodes.SoftwareComponent.Kibana',
+                                 'tosca.nodes.WebApplication.WordPress',
                                  'test_namespace_prefix.Rsyslog',
                                  'Test2ndRsyslogType',
                                  'test_2nd_namespace_prefix.Rsyslog',
@@ -571,7 +576,8 @@ class ToscaTemplateTest(TestCase):
         exception.ExceptionCollector.assertExceptionMessage(
             exception.UnknownFieldError, err7_msg)
 
-        err8_msg = _('\'Node template "server1" was not found.\'')
+        err8_msg = _('\'Node template "server1" was not found in '
+                     '"webserver".\'')
         exception.ExceptionCollector.assertExceptionMessage(
             KeyError, err8_msg)
 
