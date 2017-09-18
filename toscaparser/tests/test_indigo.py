@@ -11,7 +11,6 @@
 #    under the License.
 
 import os
-import time
 from toscaparser.tests.base import TestCase
 from toscaparser.tosca_template import ToscaTemplate
 
