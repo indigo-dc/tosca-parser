@@ -55,5 +55,5 @@ class TypeValidation(object):
         if version not in self.VALID_TEMPLATE_VERSIONS:
             ExceptionCollector.appendException(
                 InvalidTemplateVersion(
-                    what=version + ' in ' + self.import_def,
+                    what=version + ' in ' + str(self.import_def),
                     valid_versions=', '. join(self.VALID_TEMPLATE_VERSIONS)))
