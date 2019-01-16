@@ -7,7 +7,7 @@ node_types:
   tosca.nodes.SomeSoftwareComponent:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
-      test1:
+      test:
         type: string
 
 topology_template:
@@ -17,7 +17,7 @@ topology_template:
     some:
       type: tosca.nodes.SomeSoftwareComponent
       properties:
-        test1: { get_attribute: [ HOST, private_address ] }
+        test: { get_attribute: [ HOST, private_address ] }
       requirements:
       - host:
           node: server
