@@ -148,6 +148,37 @@ class ToscaTemplateTest(TestCase):
         self.assertFalse(
             wordpress_node.is_derived_from("tosca.policies.Root"))
 
+    def test_nodetype_without_relationship(self):
+        # Nodes that contain "relationship" in "requirements"
+        depend_node_types = (
+            "tosca.nodes.SoftwareComponent",
+        )
+
+        # Nodes that do not contain "relationship" in "requirements"
+        non_depend_node_types = (
+            "tosca.nodes.Compute",
+            "sample.SC",
+        )
+
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_nodetype_without_relationship.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        nodetemplates = tosca.nodetemplates
+        for node in nodetemplates:
+            node_depend = node.related_nodes
+            if node_depend:
+                self.assertIn(
+                    node.type,
+                    depend_node_types
+                )
+            else:
+                self.assertIn(
+                    node.type,
+                    non_depend_node_types
+                )
+
     def test_outputs(self):
         self.assertEqual(
             ['website_url'],
@@ -438,6 +469,40 @@ class ToscaTemplateTest(TestCase):
                                  custom_def).get_capabilities_objects())
         self.assertEqual('Type "tosca.capabilities.TestCapability" is not '
                          'a valid type.', six.text_type(err))
+
+    def test_capability_without_properties(self):
+        expected_version = "tosca_simple_yaml_1_0"
+        expected_description = \
+            "Test resources for which properties are not defined in "\
+            "the parent of capabilitytype. "\
+            "TestApp has capabilities->test_cap, "\
+            "and the type of test_cap is TestCapabilityAA. "\
+            "The parents of TestCapabilityAA is TestCapabilityA, "\
+            "and TestCapabilityA has no properties."
+        expected_nodetemplates = {
+            "test_app": {
+                "type": "tosca.nodes.WebApplication.TestApp",
+                "capabilities": {
+                    "test_cap": {
+                        "properties": {
+                            "test": 1
+                        }
+                    }
+                }
+            }
+        }
+
+        tosca_tpl = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/test_capability_without_properties.yaml")
+        tosca = ToscaTemplate(tosca_tpl)
+
+        self.assertEqual(expected_version, tosca.version)
+        self.assertEqual(expected_description, tosca.description)
+        self.assertEqual(
+            expected_nodetemplates,
+            tosca.nodetemplates[0].templates,
+        )
 
     def test_local_template_with_local_relpath_import(self):
         tosca_tpl = os.path.join(
@@ -911,3 +976,9 @@ class ToscaTemplateTest(TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "data/test_custom_capabilty.yaml")
         ToscaTemplate(tosca_tpl)
+
+    def test_csar_multilevel_imports_relative_path(self):
+        csar_archive = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'data/CSAR/csar_relative_path_import_check.zip')
+        self.assertTrue(ToscaTemplate(csar_archive))
